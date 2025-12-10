@@ -3,82 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audace Store</title>
+    <title>Audace Intimates Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
-    
-    <header id="main-header">
-        <i class="fa-solid fa-bars menu-icon" id="menu-toggle"></i>
-        <h1 class="logo">
-            <img src="https://64.media.tumblr.com/a7a2d66d6ff934b3bb048d746cab21ce/898c9ad942facd8f-19/s2048x3072/558173e774b26d37da4c6d94c046f89127c3df76.pnj" alt="Logo Audace">
-        </h1>
-        <i class="fa-solid fa-bag-shopping bag-icon" id="carrinho-toggle">
-            <span id="carrinho-contador" class="contador">0</span>
-        </i>
-    </header>
 
-    <nav id="sidebar">
-        <div id="sidebar-content">
-            <h2>CATEGORIAS</h2>
-            <ul id="menu-categorias">
-                <li><a href="#" data-categoria="TODOS" class="active">Todos os Produtos</a></li>
-                </ul>
-        </div>
-    </nav>
-
-    <main id="main-content" class="container">
-        <section id="lista-produtos" class="produtos-grid">
-            </section>
-    </main>
-    
-    <section id="carrinho-page" class="hidden container">
-        <div class="carrinho-wrapper">
-            <div id="carrinho-itens-lista" class="carrinho-itens-lista">
-                <h2>Seu Carrinho</h2>
-                </div>
-
-            <div class="carrinho-resumo">
-                <div class="carrinho-subtotal">
-                    <i class="fa-solid fa-bag-shopping bag-large"></i>
-                    <p>SUBTOTAL:</p>
-                    <p id="carrinho-subtotal-valor">R$ 0,00</p>
-                </div>
-                
-                <div class="opcoes-frete">
-                    <span id="btn-entrega" class="btn-frete active">ENTREGA</span>
-                    <span id="btn-retirada" class="btn-frete">RETIRADA: R$ 00,00</span>
-                </div>
-
-                <div id="aviso-frete-balao" class="aviso-frete-balao">
-                    COMO NÃO UTILIZAMOS SISTEMA DE FRETE INTEGRADO, O FRETE SERÁ CALCULADO DE ACORDO COM SUA LOCALIDADE E PEDIDO. ENTRAREMOS EM CONTATO PARA COMBINAR A ENTREGA ASSIM QUE RECEBERMOS O SEU PEDIDO. CASO PREFIRA, COMBINE O FRETE AGORA <a href="https://wa.me/5584991401439?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento." target="_blank" id="link-whatsapp">CLICANDO AQUI.</a>
-                </div>
-
-                <button id="btn-finalizar-compra" class="btn-finalizar-compra" disabled>FINALIZAR COMPRA</button>
+    <header>
+        <div class="header-container">
+            <button id="menu-btn"><i class="fas fa-bars"></i></button>
+            <div class="logo-container">
+                <img src="https://64.media.tumblr.com/a7a2d66d6ff934b3bb048d746cab21ce/898c9ad942facd8f-19/s2048x3072/558173e774b26d37da4c6d94c046f89127c3df76.pnj" alt="Logo Loja">
+            </div>
+            <div class="cart-icon" onclick="openCart()">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-count">0</span>
             </div>
         </div>
-    </section>
+    </header>
 
-    <div id="modal-produto" class="modal">
+    <div class="search-container">
+        <input type="text" id="search-input" placeholder="O que você procura?">
+    </div>
+
+    <div id="side-menu" class="side-menu">
+        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <h3>Categorias</h3>
+        <div id="category-list">
+            </div>
+        <button onclick="filterCategory('all')" class="cat-btn">Ver Tudo</button>
+    </div>
+
+    <main id="products-container">
+        <p id="loading">Carregando produtos...</p>
+    </main>
+
+    <div id="product-modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <div id="detalhes-produto" class="modal-detalhes-grid">
+            <span class="close-modal" onclick="closeProductModal()">&times;</span>
+            <div id="modal-body">
                 </div>
-            <div class="modal-footer">
-                <button id="add-carrinho-btn" class="btn-comprar">COMPRAR</button>
+        </div>
+    </div>
+
+    <div id="cart-modal" class="modal">
+        <div class="modal-content cart-content">
+            <span class="close-modal" onclick="closeCart()">&times;</span>
+            <h2>Seu Carrinho</h2>
+            <div id="cart-items">
+                </div>
+            <div class="cart-footer">
+                <p>Total: <strong id="cart-total">R$ 0,00</strong></p>
+                
+                <div class="shipping-options">
+                    <h3>Escolha a forma de entrega:</h3>
+                    <div class="buttons-row">
+                        <button onclick="selectShipping('retirada')" class="action-btn">RETIRADA</button>
+                        <button onclick="selectShipping('entrega')" class="action-btn">ENTREGA</button>
+                    </div>
+                </div>
+
+                <div id="shipping-message" style="display:none; margin-top: 10px; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                    <p>Como o cálculo do frete não é integrado ao nosso site, você pode aguardar o nosso contato após a finalização da venda, ou combinar o frete agora <a href="https://wa.me/5549914014398?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento" target="_blank"><strong>clicando aqui</strong></a>.</p>
+                </div>
+
+                <button id="checkout-btn" class="checkout-btn" onclick="finalizeCheckout()" style="display:none; margin-top: 15px;">FINALIZAR A COMPRA</button>
             </div>
         </div>
     </div>
 
-    <form id="checkout-form" method="POST" target="_blank" class="hidden">
-        <input type="hidden" name="_next" id="infinitepay-redirect"> 
-        <input type="hidden" name="_subject" value="NOVO PEDIDO DE COMPRA NA LOJA ONLINE!">
-        <input type="hidden" name="Tipo_Frete_Escolhido" id="input-tipo-frete">
-        <input type="hidden" name="Total_Pedido" id="input-total-pedido">
-        <input type="hidden" name="Lista_Produtos" id="input-lista-produtos">
-    </form>
-    
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
