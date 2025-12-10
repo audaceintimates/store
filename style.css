@@ -1,0 +1,450 @@
+/* Reset Básico */
+body {
+    font-family: 'Times New Roman', Times, serif; /* Fonte elegante */
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8; /* Fundo levemente off-white */
+    color: #333;
+    overflow-x: hidden; /* Evita barra de rolagem horizontal */
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ====================================
+   1. CABEÇALHO (header.jpg)
+   ==================================== */
+#main-header {
+    background-color: black;
+    color: white;
+    height: 60px;
+    padding: 0 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 100;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.logo {
+    font-size: 1.8em;
+    font-weight: 400;
+    letter-spacing: 5px;
+    margin: 0;
+    flex-grow: 1;
+    text-align: center;
+    cursor: default;
+}
+
+.menu-icon, .bag-icon {
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 10px;
+    position: relative;
+}
+
+.contador {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: red;
+    color: white;
+    font-size: 0.6em;
+    padding: 2px 5px;
+    border-radius: 50%;
+    line-height: 1;
+}
+
+/* Espaço para evitar que o conteúdo fique atrás do cabeçalho fixo */
+#main-content {
+    padding-top: 80px; 
+}
+
+
+/* ====================================
+   2. MENU LATERAL (SIDEBAR)
+   ==================================== */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    z-index: 99;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    padding-top: 60px; /* Alinha com o cabeçalho */
+}
+
+#sidebar.open {
+    transform: translateX(0);
+}
+
+#sidebar h2 {
+    padding: 15px;
+    margin: 0;
+    background-color: #eee;
+    font-size: 1.1em;
+}
+
+#menu-categorias {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#menu-categorias li a {
+    display: block;
+    padding: 15px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+#menu-categorias li a:hover,
+#menu-categorias li a.active {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
+
+/* Overlay para quando o menu estiver aberto */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 98;
+    display: none;
+}
+
+
+/* ====================================
+   3. GRID DE PRODUTOS (1.jpg)
+   ==================================== */
+.produtos-grid {
+    display: grid;
+    /* 4 colunas em telas grandes */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 30px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.produto-card {
+    background-color: transparent; /* Sem fundo */
+    overflow: hidden;
+    transition: transform 0.2s;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.produto-card:hover {
+    transform: translateY(-3px);
+    opacity: 0.8;
+}
+
+.produto-card img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+}
+
+.produto-card h3 {
+    margin: 10px 0 5px;
+    font-size: 1em;
+    font-weight: normal;
+}
+
+.produto-card .preco {
+    font-size: 1.1em;
+    color: black;
+    font-weight: bold;
+}
+
+/* ====================================
+   4. MODAL DETALHES (4.jpg)
+   ==================================== */
+.modal-content {
+    background-color: white;
+    margin: 5% auto; 
+    padding: 30px;
+    border-radius: 0; /* Removendo bordas arredondadas */
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    
+    /* Adaptando o layout para 4.jpg */
+    display: grid;
+    grid-template-columns: 40% 60%;
+    gap: 30px;
+}
+
+#detalhes-produto {
+    display: contents; /* Permite que os filhos docupe as colunas do modal-content */
+}
+
+#detalhes-produto img {
+    max-width: 100%;
+    height: auto;
+    grid-column: 1 / 2; /* Fica na primeira coluna */
+    margin: 0;
+}
+
+.modal-detalhes-info {
+    grid-column: 2 / 3; /* Fica na segunda coluna */
+}
+
+.detalhe-nome { font-size: 1.8em; margin-bottom: 5px; }
+.detalhe-descricao { margin-bottom: 20px; color: #555; line-height: 1.4; }
+
+/* Tabela de Variações e Quantidade (Baseado em 4.jpg) */
+.tabela-variacoes {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tabela-variacoes th, .tabela-variacoes td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: left;
+}
+
+.tabela-variacoes th {
+    background-color: #f8f8f8;
+    font-weight: normal;
+}
+
+.modal-footer {
+    grid-column: 2 / 3; /* Coloca o botão COMPRAR na segunda coluna */
+    text-align: right;
+    margin-top: 20px;
+}
+
+.btn-comprar {
+    background-color: #ff0000; /* Vermelho vibrante */
+    color: white;
+    padding: 10px 25px;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.btn-comprar:hover {
+    background-color: #cc0000;
+}
+
+
+/* ====================================
+   5. PÁGINA DO CARRINHO (2.jpg e 3.jpg)
+   ==================================== */
+#carrinho-page {
+    padding-top: 80px;
+}
+
+.carrinho-wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Coluna de itens maior que a de resumo */
+    gap: 40px;
+}
+
+.carrinho-itens-lista {
+    padding: 20px;
+    background-color: white;
+}
+
+.carrinho-itens-lista h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 10px;
+}
+
+.carrinho-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+}
+
+.carrinho-item img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.item-info {
+    flex-grow: 1;
+}
+
+.item-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 1em;
+}
+
+.item-info p {
+    margin: 0;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+/* Checkbox estilizado (Simples) */
+.checkbox-carrinho {
+    margin-right: 15px;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #333;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.checkbox-carrinho.checked {
+    background-color: #333;
+    color: white;
+}
+
+/* Controle de Quantidade Simples no Carrinho */
+.item-quantidade {
+    color: red;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 5px;
+    cursor: default;
+}
+
+/* Coluna de Resumo */
+.carrinho-resumo {
+    padding: 20px;
+    background-color: #f8f8f8;
+    text-align: center;
+}
+
+.bag-large {
+    font-size: 5em;
+    margin-bottom: 10px;
+}
+
+.carrinho-subtotal p {
+    margin: 5px 0;
+    font-size: 1.1em;
+}
+
+#carrinho-subtotal-valor {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: black;
+}
+
+/* Botões de Frete (Entrega/Retirada) */
+.opcoes-frete {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+    font-size: 0.9em;
+}
+
+.btn-frete {
+    padding: 5px 10px;
+    color: red;
+    border: 2px solid red;
+    border-radius: 0;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: bold;
+}
+
+.btn-frete.active {
+    background-color: black;
+    color: white;
+    border-color: black;
+}
+
+/* Balão de Aviso (3.jpg) */
+.aviso-frete-balao {
+    background-color: black;
+    color: white;
+    padding: 20px;
+    margin-top: 15px;
+    font-size: 0.9em;
+    line-height: 1.4;
+    position: relative;
+    text-align: justify;
+}
+
+.aviso-frete-balao::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    right: 25%; /* Ajuste a posição do bico */
+    border-style: solid;
+    border-width: 0 10px 15px 10px;
+    border-color: transparent transparent black transparent;
+}
+
+.aviso-frete-balao a {
+    color: #4da6ff; /* Azul para o link AQUI */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Botão Finalizar Compra (2.jpg) */
+.btn-finalizar-compra {
+    background-color: #ff0000;
+    color: white;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 30px;
+    transition: background-color 0.3s;
+}
+
+.btn-finalizar-compra:hover:not(:disabled) {
+    background-color: #cc0000;
+}
+
+.btn-finalizar-compra:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+/* MEDIA QUERIES para responsividade */
+@media (max-width: 768px) {
+    .carrinho-wrapper {
+        grid-template-columns: 1fr;
+    }
+    .modal-content {
+        grid-template-columns: 1fr;
+    }
+    .modal-footer {
+        grid-column: 1 / 2;
+        text-align: center;
+    }
+}
