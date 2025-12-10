@@ -214,7 +214,7 @@ body {
 }
 
 #detalhes-produto {
-    display: contents; 
+    display: none; 
 }
 
 #detalhes-produto img {
