@@ -3,16 +3,16 @@
 // ====================================================================
 
 // 1. COLE AQUI A URL DO SEU WEB APP (APPS SCRIPT) - TERMINA EM /exec
-const API_URL = 'https://script.google.com/macros/s/AKfycbyYqFl-fYUf04plIYnbLrU-aPqYpDR0zNPy0P-fMb6EqxJFTb7zmY9td-Kej-VinM5K/exec'; // <-- EDITE AQUI
+const API_URL = 'https://script.google.com/macros/s/AKfycbwmFW5JzBj_E1B5XeF3Cns2VPXCknFfUqKD9LUyW68-xkOsd2B2ypKInGLGOGmeZdoMsg/exec'; // <-- EDITE AQUI
 
 // 2. SEU EMAIL DO FORMSUBMIT
-const FORM_SUBMIT_EMAIL = 'micaelcomdeus123@gmail.com'; // <-- EDITE AQUI
+const FORM_SUBMIT_EMAIL = 'useaudaceintimates@gmail.com'; // <-- EDITE AQUI
 
 // 3. SEU USUÁRIO DA INFINITEPAY
 const INFINITEPAY_USER = 'audaces'; 
 
 // URL base para redirecionamento do checkout (AJUSTE CONFORME O SEU NOVO REPOSITÓRIO)
-const REDIRECT_BASE_URL = 'https://micaelnascimento2468.github.io/minha-loja-infinite/tela-de-agradecimento'; 
+const REDIRECT_BASE_URL = 'https://audaceintimates.github.io/store/'; 
 
 // ====================================================================
 // ESTADO GLOBAL E ELEMENTOS
