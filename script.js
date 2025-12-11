@@ -327,7 +327,7 @@ function finalizeCheckout() {
     const itemsPayload = itemsStrings.join(',');
     
     const baseUrl = "https://checkout.infinitepay.io/audaces";
-    const redirectUrl = "https://audaceintimates.github.io/store/";
+    const redirectUrl = "https://wa.me/5584991401439?text=Ol%C3%A1!%20Acabei%20de%20fazer%20o%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es%20sobre%20entrega/retirada%20do(s)%20meu(s)%20produto(s).";
     
     // Monta URL crua
     const finalLink = `${baseUrl}?items=[${itemsPayload}]&redirect_url=${redirectUrl}`;
