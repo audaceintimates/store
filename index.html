@@ -52,6 +52,7 @@
             <h2>Seu Carrinho</h2>
             <div id="cart-items">
                 </div>
+            
             <div class="cart-footer">
                 <p>Total: <strong id="cart-total">R$ 0,00</strong></p>
                 
@@ -63,11 +64,31 @@
                     </div>
                 </div>
 
-                <div id="shipping-message" style="display:none; margin-top: 10px; background: #fff3cd; padding: 10px; border-radius: 5px;">
-                    <p>Como o cálculo do frete não é integrado ao nosso site, você pode aguardar o nosso contato após a finalização da venda, ou combinar o frete agora <a href="https://wa.me/5549914014398?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento" target="_blank"><strong>clicando aqui</strong></a>.</p>
+                <div id="customer-form" class="customer-form">
+                    <h3>Seus Dados</h3>
+                    <div class="form-group">
+                        <label>Nome Completo *</label>
+                        <input type="text" id="cust-name" placeholder="Seu nome">
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp / Telefone *</label>
+                        <input type="text" id="cust-phone" placeholder="(XX) XXXXX-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail *</label>
+                        <input type="email" id="cust-email" placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Endereço Completo *</label>
+                        <input type="text" id="cust-address" placeholder="Rua, número, bairro (Obrigatório para entrega)">
+                    </div>
                 </div>
 
-                <button id="checkout-btn" class="checkout-btn" onclick="finalizeCheckout()" style="display:none; margin-top: 15px;">FINALIZAR A COMPRA</button>
+                <div id="shipping-message" style="display:none; margin-top: 10px; background: #fff3cd; padding: 10px; border-radius: 5px;">
+                    <p>Cálculo de frete a combinar via WhatsApp após a compra.</p>
+                </div>
+
+                <button id="checkout-btn" class="checkout-btn" onclick="submitOrder()" style="display:none; margin-top: 15px;">FINALIZAR A COMPRA</button>
             </div>
         </div>
     </div>
