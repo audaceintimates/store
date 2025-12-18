@@ -1,4 +1,4 @@
-/* MANTENDO SEU RESET E DESIGN ORIGINAL */
+/* RESET E CONFIGURAÇÕES GERAIS */
 * {
     margin: 0;
     padding: 0;
@@ -9,10 +9,10 @@
 body {
     background-color: #f5f5f5;
     padding-bottom: 50px;
-    overflow-x: hidden; /* TRAVA PARA O SITE NÃO FICAR GIGANTE */
+    overflow-x: hidden;
 }
 
-/* Cabeçalho Original */
+/* CABEÇALHO */
 header {
     background-color: #000;
     color: #fff;
@@ -34,65 +34,187 @@ header {
 .logo-container img {
     max-height: 70px;
     width: auto;
-    max-width: 100%; /* Garante que a imagem não vaze */
+    max-width: 100%;
 }
 
-/* ... Mantendo todos os seus estilos de botões, cards e formulários ... */
-#menu-btn, .cart-icon { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+#menu-btn, .cart-icon {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+}
+
 .cart-icon { position: relative; }
-#cart-count { position: absolute; top: -5px; right: -10px; background: red; color: white; border-radius: 50%; font-size: 12px; padding: 2px 6px; }
+#cart-count {
+    position: absolute; top: -5px; right: -10px;
+    background: red; color: white; border-radius: 50%;
+    font-size: 12px; padding: 2px 6px;
+}
 
-.search-container { padding: 15px; background: #fff; display: flex; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-#search-input { width: 100%; max-width: 600px; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+/* BUSCA */
+.search-container {
+    padding: 15px; background: #fff;
+    display: flex; justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+#search-input {
+    width: 100%; max-width: 600px; padding: 10px;
+    border: 1px solid #ddd; border-radius: 20px; outline: none;
+}
 
-#products-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-.product-card { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; display: flex; flex-direction: column; position: relative; }
-.product-card img { width: 100%; height: 200px; object-fit: cover; }
-.product-info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+/* MENU LATERAL (Corrigido para funcionar) */
+.side-menu {
+    height: 100%;
+    width: 0; /* Começa fechado */
+    position: fixed;
+    z-index: 2000;
+    top: 0; left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
 
-/* MODAIS ORIGINAIS */
-.modal { display: none; position: fixed; z-index: 300; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
-.modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 90%; max-width: 500px; border-radius: 8px; position: relative; max-height: 90vh; overflow-y: auto; }
-
-/* ESTILOS EXCLUSIVOS DO CARROSSEL (Adicionados para funcionar) */
-.carousel-container {
-    position: relative;
+.side-menu a, .side-menu h3, .cat-btn {
+    padding: 15px 32px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+    background: none;
+    border: none;
     width: 100%;
-    height: 300px;
-    overflow: hidden;
-    margin-bottom: 15px;
-    background: #f9f9f9;
-    border-radius: 5px;
+    text-align: left;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+.side-menu h3 { color: #fff; border-bottom: 1px solid #333; margin-bottom: 10px; cursor: default; }
+
+.side-menu a:hover, .cat-btn:hover { color: #f1f1f1; }
+
+.side-menu .close-btn {
+    position: absolute;
+    top: 0; right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+/* GRID DE PRODUTOS */
+#products-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px; padding: 20px;
+    max-width: 1200px; margin: 0 auto;
+}
+
+.product-card {
+    background: #fff; border-radius: 8px; overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer; transition: transform 0.2s;
+    display: flex; flex-direction: column; position: relative;
+}
+
+.product-card img {
+    width: 100%; height: 200px; object-fit: cover;
+    transition: 0.3s;
+}
+
+.product-info {
+    padding: 10px; flex-grow: 1;
+    display: flex; flex-direction: column; justify-content: space-between;
+}
+
+/* ESTILOS DE PRODUTO ESGOTADO (O Ajuste que você pediu) */
+.product-card.sold-out img {
+    opacity: 0.5;
+    filter: grayscale(100%); /* Deixa preto e branco */
+}
+
+.sold-out-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: red;
+    font-size: 22px;
+    font-weight: 900;
+    border: 3px solid red;
+    padding: 5px 15px;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 10;
+    pointer-events: none; /* Permite clicar no card através do texto */
+    white-space: nowrap;
+}
+
+/* MODAIS */
+.modal {
+    display: none; position: fixed; z-index: 3000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    overflow: auto; background-color: rgba(0,0,0,0.6);
+}
+.modal-content {
+    background-color: #fefefe; margin: 5% auto;
+    padding: 20px; border: 1px solid #888;
+    width: 95%; max-width: 500px;
+    border-radius: 8px; position: relative;
+}
+.close-modal {
+    position: absolute; right: 15px; top: 10px;
+    font-size: 28px; font-weight: bold; cursor: pointer; z-index: 10;
+}
+
+/* CARROSSEL NO MODAL */
+.carousel-container {
+    position: relative; width: 100%; height: 350px;
+    overflow: hidden; margin-bottom: 15px;
+    background: #f9f9f9; border-radius: 5px;
 }
 .carousel-track {
-    display: flex;
-    transition: transform 0.3s ease-in-out;
-    height: 100%;
+    display: flex; transition: transform 0.3s ease-in-out; height: 100%;
 }
 .carousel-item {
-    min-width: 100%;
-    height: 100%;
-    object-fit: contain;
+    min-width: 100%; height: 100%; object-fit: contain;
 }
 .nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0,0,0,0.3);
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    border-radius: 50%;
-    z-index: 5;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(0,0,0,0.3); color: white;
+    border: none; padding: 15px; cursor: pointer;
+    font-size: 18px; z-index: 5;
 }
-.prev-btn { left: 5px; }
-.next-btn { right: 5px; }
+.prev-btn { left: 0; }
+.next-btn { right: 0; }
 
-/* SEUS BOTÕES E FORMULÁRIO (Igual ao original) */
-.action-btn { flex: 1; padding: 10px; background: #000; color: #fff; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; }
+/* BOTÕES E FORMULÁRIO DO CARRINHO */
+.cart-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
+.cart-controls button { width: 30px; height: 30px; cursor: pointer; }
+
+.shipping-options { margin-top: 20px; text-align: center; }
+.buttons-row { display: flex; gap: 10px; margin-top: 10px; }
+
+.action-btn {
+    flex: 1; padding: 12px; background: #000;
+    color: #fff; border: none; cursor: pointer;
+    border-radius: 5px; font-weight: bold; text-transform: uppercase;
+}
+.action-btn:hover { opacity: 0.8; }
 .action-btn.secondary { background: #555; }
-.checkout-btn { width: 100%; padding: 15px; background: #28a745; color: white; border: none; font-size: 16px; cursor: pointer; margin-top: 10px; border-radius: 5px; font-weight: bold; }
-.customer-form { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-.form-group { margin-bottom: 10px; text-align: left; }
-.form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+
+.customer-form {
+    margin-top: 20px; padding: 15px;
+    background: #f9f9f9; border-radius: 5px;
+    display: none; /* Escondido inicialmente */
+}
+.form-group { margin-bottom: 12px; text-align: left; }
+.form-group label { font-size: 14px; font-weight: bold; display: block; margin-bottom: 5px; }
+.form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+
+/* Botão Finalizar Compra */
+.checkout-btn {
+    width: 100%; padding: 15px;
+    background: #28a745; color: white;
+    border: none; font-size: 18px; font-weight: bold;
+    cursor: pointer; margin-top: 15px; border-radius: 5px;
+    display: none; /* Escondido inicialmente */
+}
+.checkout-btn:disabled { background: #ccc; }
