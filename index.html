@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Audace Intimates Store</title>
+    <title>Audace Intimates</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,84 +11,105 @@
 
     <header>
         <div class="header-container">
-            <button id="menu-btn"><i class="fas fa-bars"></i></button>
-            <div class="logo-container">
-                <img src="https://64.media.tumblr.com/a7a2d66d6ff934b3bb048d746cab21ce/898c9ad942facd8f-19/s2048x3072/558173e774b26d37da4c6d94c046f89127c3df76.pnj" alt="Logo Loja">
+            <button id="menu-btn" class="icon-btn"><i class="fas fa-bars"></i></button>
+            <div class="logo-area">
+                <img src="https://64.media.tumblr.com/a7a2d66d6ff934b3bb048d746cab21ce/898c9ad942facd8f-19/s2048x3072/558173e774b26d37da4c6d94c046f89127c3df76.pnj" alt="Audace Logo" class="logo">
             </div>
-            <div class="cart-icon" onclick="openCart()">
+            <button id="cart-btn" class="icon-btn">
                 <i class="fas fa-shopping-bag"></i>
                 <span id="cart-count">0</span>
-            </div>
+            </button>
         </div>
     </header>
 
-    <div class="search-container">
-        <input type="text" id="search-input" placeholder="O que você procura?">
+    <div class="search-bar-container">
+        <input type="text" id="search-input" placeholder="O que você procura hoje?">
     </div>
 
     <div id="side-menu" class="side-menu">
-        <a href="javascript:void(0)" class="close-btn" onclick="closeMenu()">&times;</a>
+        <button id="close-menu" class="close-btn">&times;</button>
         <h3>Categorias</h3>
-        <div id="category-list">
-            </div>
-        <button onclick="filterCategory('all')" class="cat-btn">Ver Tudo</button>
+        <ul id="category-list">
+            </ul>
     </div>
+    <div id="menu-overlay" class="overlay"></div>
 
-    <main id="products-container">
-        <p id="loading">Carregando produtos...</p>
+    <main class="products-container" id="products-grid">
+        <div class="loading">Carregando produtos...</div>
     </main>
 
-    <div id="product-modal" class="modal">
+    <div id="product-modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeProductModal()">&times;</span>
-            <div id="modal-body">
+            <span class="close-modal" id="close-product-modal">&times;</span>
+            
+            <div class="product-detail-layout">
+                <div class="image-gallery">
+                    <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
+                    <img id="modal-img" src="" alt="Produto">
+                    <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
                 </div>
+                
+                <div class="info-section">
+                    <h2 id="modal-title">Nome do Produto</h2>
+                    <p id="modal-price" class="price">R$ 0,00</p>
+                    <p id="modal-desc">Descrição do produto...</p>
+                    
+                    <div class="variations-section">
+                        <label>Variações:</label>
+                        <select id="modal-variation">
+                            </select>
+                    </div>
+
+                    <div class="quantity-section">
+                        <label>Quantidade:</label>
+                        <input type="number" id="modal-qty" value="1" min="1">
+                        <span id="stock-display" class="stock-info">Estoque: 10</span>
+                    </div>
+
+                    <div class="action-buttons" id="modal-actions">
+                        <button id="add-to-cart-btn" class="primary-btn">Adicionar ao Carrinho</button>
+                        <button id="buy-now-btn" class="secondary-btn">Comprar Agora</button>
+                    </div>
+                    <div id="sold-out-msg" class="hidden error-msg">ESGOTADO</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="cart-modal" class="modal">
+    <div id="cart-modal" class="modal hidden">
         <div class="modal-content cart-content">
-            <span class="close-modal" onclick="closeCart()">&times;</span>
+            <span class="close-modal" id="close-cart-modal">&times;</span>
             <h2>Seu Carrinho</h2>
-            <div id="cart-items">
-                </div>
             
-            <div class="cart-footer">
-                <p>Total: <strong id="cart-total">R$ 0,00</strong></p>
-                
-                <div class="shipping-options">
-                    <h3>Escolha a forma de entrega:</h3>
-                    <div class="buttons-row">
-                        <button onclick="selectShipping('retirada')" class="action-btn">RETIRADA</button>
-                        <button onclick="selectShipping('entrega')" class="action-btn">ENTREGA</button>
-                    </div>
+            <div id="cart-items" class="cart-items-list">
                 </div>
 
-                <div id="customer-form" class="customer-form">
-                    <h3>Seus Dados</h3>
-                    <div class="form-group">
-                        <label>Nome Completo *</label>
-                        <input type="text" id="cust-name" placeholder="Seu nome">
-                    </div>
-                    <div class="form-group">
-                        <label>WhatsApp / Telefone *</label>
-                        <input type="text" id="cust-phone" placeholder="(XX) XXXXX-XXXX">
-                    </div>
-                    <div class="form-group">
-                        <label>E-mail *</label>
-                        <input type="email" id="cust-email" placeholder="seu@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Endereço Completo *</label>
-                        <input type="text" id="cust-address" placeholder="Rua, número, bairro (Obrigatório para entrega)">
-                    </div>
-                </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cart-total">R$ 0,00</span></p>
+            </div>
 
-                <div id="shipping-message" style="display:none; margin-top: 10px; background: #fff3cd; padding: 10px; border-radius: 5px;">
-                    <p>Cálculo de frete a combinar via WhatsApp após a compra.</p>
+            <div id="checkout-form-container" class="hidden">
+                <h3>Dados para o Pedido</h3>
+                <form id="order-form">
+                    <input type="text" id="customer-name" name="name" placeholder="Seu Nome Completo" required>
+                    <input type="email" id="customer-email" name="email" placeholder="Seu E-mail" required>
+                    
+                    <label>Forma de Entrega:</label>
+                    <div class="delivery-options">
+                        <button type="button" class="delivery-btn" data-type="retirada">RETIRADA</button>
+                        <button type="button" class="delivery-btn" data-type="entrega">ENTREGA</button>
+                    </div>
+                    <input type="hidden" id="delivery-method" name="delivery_method">
+                    
+                    <button type="submit" id="submit-order-btn" class="primary-btn hidden">Ir para Pagamento</button>
+                </form>
+                <div id="freight-warning" class="hidden warning-box">
+                    <p>Como o cálculo do frete não é integrado ao nosso site, você pode aguardar o nosso contato após a finalização da venda, ou combinar o frete agora <a href="https://wa.me/5549914014398?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento" target="_blank">clicando aqui</a>.</p>
                 </div>
+            </div>
 
-                <button id="checkout-btn" class="checkout-btn" onclick="submitOrder()" style="display:none; margin-top: 15px;">FINALIZAR A COMPRA</button>
+            <div class="cart-actions" id="initial-cart-actions">
+                <button id="finalize-cart-btn" class="primary-btn">Finalizar Compra</button>
             </div>
         </div>
     </div>
