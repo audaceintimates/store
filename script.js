@@ -1,361 +1,392 @@
+// URL do seu Google Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbwmFW5JzBj_E1B5XeF3Cns2VPXCknFfUqKD9LUyW68-xkOsd2B2ypKInGLGOGmeZdoMsg/exec";
-const NOTIFICATION_EMAIL = "useaudaceintimates@gmail.com";
+
+// URL base do InfinitePay
+const INFINITE_BASE = "https://checkout.infinitepay.io/audaces?items=";
+const STORE_URL = "https://audaceintimates.github.io/store/";
+
+// Email do FormSubmit
+const FORMSUBMIT_URL = "https://formsubmit.co/ajax/useaudaceintimates@gmail.com";
 
 let allProducts = [];
 let cart = [];
-let shippingMethod = null;
 let currentProduct = null;
-let currentSlide = 0; 
+let currentImgIndex = 0;
 
+// Elementos do DOM
+const productsGrid = document.getElementById('products-grid');
+const searchInput = document.getElementById('search-input');
+const cartCount = document.getElementById('cart-count');
+const sideMenu = document.getElementById('side-menu');
+const categoryList = document.getElementById('category-list');
+const overlay = document.getElementById('menu-overlay');
+
+// 1. Inicialização e Busca de Dados
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
-    
-    // Configuração da Busca
-    const searchInput = document.getElementById('search-input');
-    if(searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = allProducts.filter(p => (p.Nome || '').toLowerCase().includes(term));
-            renderProducts(filtered);
-        });
-    }
-
-    // Configuração do Menu Lateral
-    const menuBtn = document.getElementById('menu-btn');
-    if(menuBtn) {
-        menuBtn.addEventListener('click', () => {
-            document.getElementById("side-menu").style.width = "280px";
-        });
-    }
+    setupEventListeners();
 });
 
-function closeMenu() { 
-    document.getElementById("side-menu").style.width = "0"; 
-}
-
-// --- FUNÇÕES AUXILIARES ---
-function parsePrice(priceValue) {
-    if (typeof priceValue === 'number') return priceValue;
-    if (!priceValue) return 0;
-    let stringPrice = priceValue.toString().replace('R$', '').replace(/\s/g, '').replace(',', '.');
-    return parseFloat(stringPrice) || 0;
-}
-
-function getStock(product) {
-    if (product.Estoque === undefined || product.Estoque === "" || product.Estoque === null) return 999;
-    return parseInt(product.Estoque);
-}
-
-// --- CARREGAMENTO DE DADOS ---
 async function fetchProducts() {
     try {
         const response = await fetch(API_URL);
         const data = await response.json();
-        allProducts = data;
+        // Assume que a API retorna um array de objetos. 
+        // Vamos normalizar os dados para garantir que as chaves funcionem
+        allProducts = data.map(item => normalizeProduct(item));
         renderProducts(allProducts);
         renderCategories(allProducts);
-    } catch (error) { console.error("Erro:", error); }
+    } catch (error) {
+        console.error("Erro ao carregar produtos:", error);
+        productsGrid.innerHTML = '<p style="padding:20px; text-align:center;">Erro ao carregar produtos. Tente recarregar a página.</p>';
+    }
 }
 
-// --- RENDERIZAÇÃO ---
-function renderProducts(products) {
-    const container = document.getElementById('products-container');
-    container.innerHTML = "";
-    
-    if(products.length === 0) {
-        container.innerHTML = "<p style='padding:20px; text-align:center; width:100%;'>Nenhum produto encontrado.</p>";
-        return;
-    }
+// Normaliza as chaves da planilha (remove acentos, deixa minúsculo) para facilitar
+function normalizeProduct(item) {
+    // Função auxiliar para pegar valor independente se a chave é "Preço", "preço" ou "Preco"
+    const getVal = (keys) => {
+        for (let k of keys) {
+            if (item[k] !== undefined) return item[k];
+        }
+        return "";
+    };
 
-    products.forEach(product => {
-        const imgs = (product.Imagem || "").split(",");
-        const firstImg = imgs[0].trim();
-        const price = parsePrice(product.Preco);
-        const stock = getStock(product);
-        const isSoldOut = stock <= 0;
-        
+    return {
+        id: Math.random().toString(36).substr(2, 9), // ID temporário
+        nome: getVal(["Nome", "nome", "NOME"]),
+        categoria: getVal(["Categoria", "categoria"]),
+        preco: getVal(["Preço", "Preco", "preco", "price"]),
+        imagem: getVal(["Imagem", "imagem"]),
+        descricao: getVal(["Descrição", "Descricao", "descricao"]),
+        variacoes: getVal(["Variações", "Variacoes", "variacoes"]),
+        estoque: parseInt(getVal(["Estoque", "estoque"])) || 0
+    };
+}
+
+// 2. Renderização
+function renderProducts(products) {
+    productsGrid.innerHTML = "";
+    products.forEach(prod => {
         const card = document.createElement('div');
-        // Adiciona classe sold-out se esgotado para o filtro cinza
-        card.className = `product-card ${isSoldOut ? 'sold-out' : ''}`;
-        card.onclick = () => openProductModal(product);
-        
-        // Aqui criamos o overlay GRANDE e CENTRALIZADO se estiver esgotado
-        const soldOutOverlay = isSoldOut ? '<div class="sold-out-overlay">ESGOTADO</div>' : '';
+        card.className = 'product-card';
+        if (prod.estoque === 0) card.classList.add('sold-out');
+
+        // Primeira imagem da lista
+        const mainImg = prod.imagem.split(',')[0].trim();
+
+        // Formatação do Preço
+        const priceDisplay = formatCurrency(prod.preco);
+
+        let soldOutHtml = prod.estoque === 0 ? 
+            `<div class="sold-out-overlay"><div class="sold-out-text">ESGOTADO</div></div>` : '';
 
         card.innerHTML = `
-            ${soldOutOverlay}
-            <img src="${firstImg}" onerror="this.src='https://via.placeholder.com/300'">
+            <div class="card-img-container">
+                <img src="${mainImg}" alt="${prod.nome}">
+                ${soldOutHtml}
+            </div>
             <div class="product-info">
-                <h3 class="product-name">${product.Nome}</h3>
-                <p class="product-price">R$ ${price.toFixed(2).replace('.', ',')}</p>
+                <div class="product-name">${prod.nome}</div>
+                <div class="product-price">${priceDisplay}</div>
             </div>
         `;
-        container.appendChild(card);
+
+        card.addEventListener('click', () => openProductModal(prod));
+        productsGrid.appendChild(card);
     });
 }
 
 function renderCategories(products) {
-    // Pegar categorias únicas
-    const categories = [...new Set(products.map(p => p.Categoria))].filter(c => c && c.trim() !== '');
-    
-    // Inserir APENAS no menu lateral
-    const list = document.getElementById('category-list');
-    if (list) {
-        list.innerHTML = ""; // Limpa lista anterior
-        categories.forEach(cat => {
-            const btn = document.createElement('button');
-            btn.innerText = cat;
-            btn.className = 'cat-btn';
-            btn.onclick = () => {
-                filterCategory(cat);
-                closeMenu();
-            };
-            list.appendChild(btn);
-        });
-    }
+    const categories = [...new Set(products.map(p => p.categoria).filter(c => c))];
+    categoryList.innerHTML = '<li onclick="filterCategory(\'all\')">Todas</li>';
+    categories.forEach(cat => {
+        const li = document.createElement('li');
+        li.textContent = cat;
+        li.onclick = () => filterCategory(cat);
+        categoryList.appendChild(li);
+    });
 }
 
-function filterCategory(category) {
-    if(category === 'all') {
+// 3. Filtros e Pesquisa
+function filterCategory(cat) {
+    closeMenu();
+    if (cat === 'all') {
         renderProducts(allProducts);
     } else {
-        const filtered = allProducts.filter(p => p.Categoria === category);
-        renderProducts(filtered);
+        renderProducts(allProducts.filter(p => p.categoria === cat));
     }
 }
 
-// --- MODAL DE PRODUTO ---
-function openProductModal(product) {
-    currentProduct = product;
-    currentSlide = 0;
-    const modal = document.getElementById('product-modal');
-    const body = document.getElementById('modal-body');
+searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const filtered = allProducts.filter(p => p.nome.toLowerCase().includes(term));
+    renderProducts(filtered);
+});
+
+// 4. Modal de Produto
+const modal = document.getElementById('product-modal');
+const modalImg = document.getElementById('modal-img');
+const modalTitle = document.getElementById('modal-title');
+const modalPrice = document.getElementById('modal-price');
+const modalDesc = document.getElementById('modal-desc');
+const modalVar = document.getElementById('modal-variation');
+const modalQty = document.getElementById('modal-qty');
+const btnAddCart = document.getElementById('add-to-cart-btn');
+const btnBuyNow = document.getElementById('buy-now-btn');
+const soldOutMsg = document.getElementById('sold-out-msg');
+const stockDisplay = document.getElementById('stock-display');
+
+function openProductModal(prod) {
+    currentProduct = prod;
+    currentImgIndex = 0;
     
-    const imgs = (product.Imagem || "").split(",").map(i => i.trim());
-    const price = parsePrice(product.Preco);
-    const stock = getStock(product);
-    const isSoldOut = stock <= 0;
-
-    let carouselHtml = `
-        <div class="carousel-container">
-            <div class="carousel-track" id="track">
-                ${imgs.map(img => `<img src="${img}" class="carousel-item">`).join('')}
-            </div>
-            ${imgs.length > 1 ? `
-                <button class="nav-btn prev-btn" onclick="moveSlide(-1, event)">❮</button>
-                <button class="nav-btn next-btn" onclick="moveSlide(1, event)">❯</button>
-            ` : ''}
-        </div>
-    `;
-
-    let variationsHtml = product.Variacoes ? `
-        <label><strong>Opção:</strong></label>
-        <select id="modal-variation" class="variation-select" style="width:100%; padding:10px; margin:5px 0;">
-            ${product.Variacoes.split(',').map(v => `<option value="${v.trim()}">${v.trim()}</option>`).join('')}
-        </select>` : `<input type="hidden" id="modal-variation" value="Único">`;
-
-    // Botões só aparecem se NÃO estiver esgotado
-    let buttonsHtml = isSoldOut ? 
-        `<div style="background:#cc0000; color:white; padding:15px; text-align:center; border-radius:5px; font-weight:bold; margin-top:15px;">PRODUTO INDISPONÍVEL</div>` : 
-        `<div style="margin: 15px 0;">
-            <label><strong>Quantidade:</strong></label>
-            <input type="number" id="modal-qty" value="1" min="1" max="${stock}" class="qty-input" style="width:60px; padding:5px; text-align:center;">
-            <span style="font-size:12px; color:#666;">(Disp: ${stock})</span>
-        </div>
-        <div class="modal-actions" style="display:flex; gap:10px;">
-            <button class="action-btn secondary" onclick="addToCartAndStay()">Adicionar ao Carrinho</button>
-            <button class="action-btn" onclick="buyNow()">Comprar Agora</button>
-        </div>`;
-
-    body.innerHTML = `
-        ${carouselHtml}
-        <h2>${product.Nome}</h2>
-        <h3 style="margin: 10px 0;">R$ ${price.toFixed(2).replace('.', ',')}</h3>
-        <p style="color:#666; font-size: 14px; margin-bottom: 15px;">${product.Descricao || ''}</p>
-        ${variationsHtml}
-        ${buttonsHtml}
-    `;
-    modal.style.display = "block";
-}
-
-function moveSlide(step, event) {
-    if(event) event.stopPropagation();
-    const track = document.getElementById('track');
-    const slides = document.querySelectorAll('.carousel-item');
-    if(slides.length === 0) return;
-    currentSlide = (currentSlide + step + slides.length) % slides.length;
-    track.style.transform = `translateX(-${currentSlide * 100}%)`;
-}
-
-// --- CARRINHO E CHECKOUT ---
-function addToCart(isBuyNow = false) {
-    const qtyInput = document.getElementById('modal-qty');
-    const qty = parseInt(qtyInput.value) || 1;
-    const variationSelect = document.getElementById('modal-variation');
-    const variation = variationSelect ? variationSelect.value : 'Padrão';
+    // Imagens
+    const images = prod.imagem.split(',').map(s => s.trim());
+    modalImg.src = images[0];
     
-    const item = {
-        name: currentProduct.Nome,
-        price: parsePrice(currentProduct.Preco),
-        image: currentProduct.Imagem.split(',')[0],
-        variation: variation,
-        qty: qty
+    // Navegação Imagens
+    document.querySelector('.prev-btn').onclick = () => {
+        currentImgIndex = (currentImgIndex - 1 + images.length) % images.length;
+        modalImg.src = images[currentImgIndex];
+    };
+    document.querySelector('.next-btn').onclick = () => {
+        currentImgIndex = (currentImgIndex + 1) % images.length;
+        modalImg.src = images[currentImgIndex];
     };
 
-    const existing = cart.find(i => i.name === item.name && i.variation === item.variation);
-    if(existing) existing.qty += qty; else cart.push(item);
-    
-    updateCartCount();
-    closeProductModal();
-    if(isBuyNow) openCart();
-}
+    modalTitle.textContent = prod.nome;
+    modalPrice.textContent = formatCurrency(prod.preco);
+    modalDesc.textContent = prod.descricao;
+    stockDisplay.textContent = `Estoque: ${prod.estoque}`;
 
-function addToCartAndStay() { addToCart(false); }
-function buyNow() { addToCart(true); }
-
-function updateCartCount() {
-    document.getElementById('cart-count').innerText = cart.reduce((acc, item) => acc + item.qty, 0);
-}
-
-function renderCartItems() {
-    const container = document.getElementById('cart-items');
-    container.innerHTML = "";
-    let total = 0;
-
-    if(cart.length === 0) {
-        container.innerHTML = "<p>Seu carrinho está vazio.</p>";
-        document.getElementById('cart-total').innerText = "R$ 0,00";
-        return;
+    // Variações
+    modalVar.innerHTML = "";
+    if (prod.variacoes) {
+        prod.variacoes.split(',').forEach(v => {
+            const opt = document.createElement('option');
+            opt.value = v.trim();
+            opt.textContent = v.trim();
+            modalVar.appendChild(opt);
+        });
     }
 
+    // Lógica de Estoque
+    if (prod.estoque === 0) {
+        btnAddCart.style.display = 'none';
+        btnBuyNow.style.display = 'none';
+        soldOutMsg.style.display = 'block';
+    } else {
+        btnAddCart.style.display = 'block';
+        btnBuyNow.style.display = 'block';
+        soldOutMsg.style.display = 'none';
+        modalQty.max = prod.estoque;
+        modalQty.value = 1;
+    }
+
+    modal.classList.remove('hidden');
+}
+
+// Ações do Modal
+btnAddCart.onclick = () => {
+    addToCart(currentProduct, modalVar.value, parseInt(modalQty.value));
+    modal.classList.add('hidden');
+    openCart();
+};
+
+btnBuyNow.onclick = () => {
+    cart = []; // Limpa carrinho anterior se for "Comprar Agora"
+    addToCart(currentProduct, modalVar.value, parseInt(modalQty.value));
+    modal.classList.add('hidden');
+    openCart();
+    document.getElementById('finalize-cart-btn').click(); // Vai direto pro checkout
+};
+
+// 5. Carrinho
+function addToCart(prod, variation, qty) {
+    const existing = cart.find(item => item.id === prod.id && item.variation === variation);
+    if (existing) {
+        existing.qty += qty;
+    } else {
+        cart.push({
+            id: prod.id,
+            name: prod.nome,
+            priceRaw: prod.preco,
+            priceInt: parsePriceToInt(prod.preco),
+            variation: variation,
+            qty: qty,
+            img: prod.imagem.split(',')[0]
+        });
+    }
+    updateCartUI();
+}
+
+function updateCartUI() {
+    cartCount.textContent = cart.reduce((acc, item) => acc + item.qty, 0);
+    const cartList = document.getElementById('cart-items');
+    cartList.innerHTML = "";
+    
+    let total = 0;
+
     cart.forEach((item, index) => {
-        total += item.price * item.qty;
-        container.innerHTML += `
-            <div class="cart-item">
-                <div class="cart-item-info">
-                    <h4>${item.name}</h4>
-                    <p style="font-size:12px; color:#666;">Var: ${item.variation}</p>
-                    <p>R$ ${item.price.toFixed(2).replace('.', ',')} | Qtd: ${item.qty}</p>
-                </div>
-                <div class="cart-controls">
-                    <button onclick="changeQty(${index}, -1)">-</button>
-                    <button onclick="changeQty(${index}, 1)">+</button>
-                </div>
-            </div>`;
+        const itemTotal = (item.priceInt / 100) * item.qty;
+        total += itemTotal;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+            <div>
+                <strong>${item.name}</strong> (${item.variation})<br>
+                Qtd: <button onclick="changeQty(${index}, -1)">-</button> 
+                ${item.qty} 
+                <button onclick="changeQty(${index}, 1)">+</button>
+            </div>
+            <div>
+                R$ ${itemTotal.toFixed(2).replace('.', ',')}
+                <i class="fas fa-trash remove-item" onclick="removeItem(${index})"></i>
+            </div>
+        `;
+        cartList.appendChild(div);
     });
-    document.getElementById('cart-total').innerText = "R$ " + total.toFixed(2).replace('.', ',');
+
+    document.getElementById('cart-total').textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
 function changeQty(index, delta) {
     cart[index].qty += delta;
-    if(cart[index].qty <= 0) cart.splice(index, 1);
-    renderCartItems();
-    updateCartCount();
+    if (cart[index].qty <= 0) cart.splice(index, 1);
+    updateCartUI();
+}
+function removeItem(index) {
+    cart.splice(index, 1);
+    updateCartUI();
 }
 
-// --- LÓGICA DE FINALIZAÇÃO ---
-function selectShipping(method) {
-    if(cart.length === 0) return alert("Carrinho vazio!");
+// 6. Checkout e Pagamento
+const cartModal = document.getElementById('cart-modal');
+const finalizeBtn = document.getElementById('finalize-cart-btn');
+const checkoutFormContainer = document.getElementById('checkout-form-container');
+const submitOrderBtn = document.getElementById('submit-order-btn');
+const initialCartActions = document.getElementById('initial-cart-actions');
+const deliveryInput = document.getElementById('delivery-method');
+const freightWarning = document.getElementById('freight-warning');
 
-    shippingMethod = method;
-    const msg = document.getElementById('shipping-message');
-    const form = document.getElementById('customer-form');
-    const btn = document.getElementById('checkout-btn');
+finalizeBtn.onclick = () => {
+    if (cart.length === 0) return alert("Seu carrinho está vazio!");
+    initialCartActions.classList.add('hidden');
+    checkoutFormContainer.classList.remove('hidden');
+};
 
-    // MOSTRAR FORMULÁRIO E BOTÃO
-    form.style.display = "block";
-    btn.style.display = "block"; // Agora o botão aparece!
+// Seleção de Entrega/Retirada
+document.querySelectorAll('.delivery-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.delivery-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const type = btn.getAttribute('data-type');
+        deliveryInput.value = type;
+        
+        if (type === 'entrega') {
+            freightWarning.classList.remove('hidden');
+        } else {
+            freightWarning.classList.add('hidden');
+        }
+        submitOrderBtn.classList.remove('hidden');
+    });
+});
 
-    if(method === 'entrega') {
-        msg.style.display = "block";
-        msg.innerHTML = '<p><strong>Frete:</strong> O cálculo será combinado via WhatsApp.</p>';
-    } else {
-        msg.style.display = "block";
-        msg.innerHTML = '<p>Você escolheu <strong>Retirada</strong>. Entraremos em contato para combinar.</p>';
-    }
+// Envio do Formulário + Redirecionamento
+document.getElementById('order-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
     
-    form.scrollIntoView({ behavior: 'smooth' });
+    const name = document.getElementById('customer-name').value;
+    const email = document.getElementById('customer-email').value;
+    const deliveryMethod = deliveryInput.value;
+
+    submitOrderBtn.textContent = "Processando...";
+    submitOrderBtn.disabled = true;
+
+    // 1. Preparar Descrição do Pedido para o Email
+    const orderDetails = cart.map(i => `${i.qty}x ${i.name} (${i.variation})`).join('\n');
+    const totalVal = document.getElementById('cart-total').textContent;
+    
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('_subject', `Novo Pedido: ${name}`);
+    formData.append('message', `Cliente: ${name}\nEntrega: ${deliveryMethod}\nTotal: ${totalVal}\n\nItens:\n${orderDetails}`);
+    formData.append('_captcha', 'false'); // Desativar captcha do formsubmit se configurado
+
+    try {
+        // 2. Enviar email via FormSubmit (AJAX)
+        await fetch(FORMSUBMIT_URL, {
+            method: 'POST',
+            body: formData
+        });
+
+        // 3. Gerar Link InfinitePay SEM encoding nos caracteres especiais JSON
+        // O formato exigido é estrito: items=[{"name":"X","price":100,"quantity":1},...]
+        
+        let jsonItems = cart.map(item => {
+            return `{"name":"${item.name} - ${item.variation}","price":${item.priceInt},"quantity":${item.qty}}`;
+        }).join(',');
+
+        // Construção manual da string para evitar encodeURIComponent nos colchetes e chaves
+        const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
+
+        console.log("Redirecionando para:", finalUrl);
+        window.location.href = finalUrl;
+
+    } catch (err) {
+        alert("Houve um erro ao processar o pedido. Tente novamente.");
+        submitOrderBtn.textContent = "Tentar Novamente";
+        submitOrderBtn.disabled = false;
+        console.error(err);
+    }
+});
+
+// Funções Utilitárias
+function formatCurrency(val) {
+    // Se val for "79,00" ou 79.00, retorna "R$ 79,00"
+    if (typeof val === 'number') return `R$ ${val.toFixed(2).replace('.', ',')}`;
+    return `R$ ${val}`;
 }
 
-function submitOrder() {
-    if(cart.length === 0) return alert("Carrinho vazio!");
+function parsePriceToInt(val) {
+    // Converte "79,00" ou "R$ 79,00" para 7900 (inteiro)
+    if (typeof val === 'number') return Math.round(val * 100);
     
-    const name = document.getElementById('cust-name').value;
-    const phone = document.getElementById('cust-phone').value;
-    const email = document.getElementById('cust-email').value;
-    const address = document.getElementById('cust-address').value;
-
-    if(!name || !phone || !email || !address) {
-        return alert("Por favor, preencha todos os dados.");
+    let clean = val.toString().replace('R$', '').trim();
+    if (clean.includes(',')) {
+        clean = clean.replace('.', '').replace(',', '.'); // Troca vírgula decimal por ponto
     }
+    return Math.round(parseFloat(clean) * 100);
+}
 
-    const btn = document.getElementById('checkout-btn');
-    btn.innerText = "Processando...";
-    btn.disabled = true;
-
-    let orderSummary = cart.map(item => 
-        `- ${item.name} (${item.variation}) | Qtd: ${item.qty} | R$ ${(item.price * item.qty).toFixed(2)}`
-    ).join('\n');
-
-    let totalVal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
-
-    const formData = {
-        _subject: "Novo Pedido - Audace Intimates",
-        _template: "table",
-        Cliente: name,
-        Telefone: phone,
-        Email: email,
-        Entrega: shippingMethod.toUpperCase(),
-        Endereco: address,
-        Total_Compra: `R$ ${totalVal.toFixed(2)}`,
-        Produtos: orderSummary
+function setupEventListeners() {
+    // Menu
+    document.getElementById('menu-btn').onclick = () => {
+        sideMenu.classList.add('open');
+        overlay.classList.add('active');
+    };
+    document.getElementById('close-menu').onclick = closeMenu;
+    overlay.onclick = () => {
+        closeMenu();
+        modal.classList.add('hidden');
+        cartModal.classList.add('hidden');
     };
 
-    fetch(`https://formsubmit.co/ajax/${NOTIFICATION_EMAIL}`, {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        redirectToPayment();
-    })
-    .catch(error => {
-        alert("Erro ao notificar pedido, mas vamos para o pagamento.");
-        redirectToPayment();
-    });
+    // Carrinho
+    document.getElementById('cart-btn').onclick = openCart;
+    document.getElementById('close-cart-modal').onclick = () => cartModal.classList.add('hidden');
+
+    // Fechar Modal Produto
+    document.getElementById('close-product-modal').onclick = () => modal.classList.add('hidden');
 }
 
-function redirectToPayment() {
-    const itemsStrings = cart.map(item => {
-        const priceInt = Math.round(item.price * 100);
-        const cleanName = (item.name + " - " + item.variation).replace(/"/g, ''); 
-        return `{"name":"${cleanName}","price":${priceInt},"quantity":${item.qty}}`;
-    });
-
-    const itemsPayload = itemsStrings.join(',');
-    const baseUrl = "https://checkout.infinitepay.io/audaces";
-    const redirectUrl = "https://wa.me/5549914014398?text=Ol%C3%A1!%20Acabei%20de%20pagar%20meu%20pedido%20no%20site.";
-    
-    const finalLink = `${baseUrl}?items=[${itemsPayload}]&redirect_url=${redirectUrl}`;
-    window.location.href = finalLink;
+function closeMenu() {
+    sideMenu.classList.remove('open');
+    overlay.classList.remove('active');
 }
-
 function openCart() {
-    renderCartItems();
-    document.getElementById('cart-modal').style.display = "block";
-    // Resetar visualização do form ao abrir o carrinho novamente
-    document.getElementById('checkout-btn').style.display = "none";
-    document.getElementById('customer-form').style.display = "none";
-    document.getElementById('shipping-message').style.display = "none";
-}
-
-function closeCart() { document.getElementById('cart-modal').style.display = "none"; }
-function closeProductModal() { document.getElementById('product-modal').style.display = "none"; }
-
-// Fechar ao clicar fora
-window.onclick = function(event) {
-    if (event.target.className === 'modal') {
-        event.target.style.display = "none";
-    }
+    cartModal.classList.remove('hidden');
 }
