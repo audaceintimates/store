@@ -129,4 +129,13 @@ header {
 .delivery-btn.selected { background: black; color: white; border-color: black; }
 
 .warning-box { background: #fff3cd; color: #856404; padding: 10px; margin: 10px 0; font-size: 0.9rem; border: 1px solid #ffeeba; }
-#order-form input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; }
+#order-form input, 
+#order-form textarea { 
+    width: 100%; 
+    padding: 10px; 
+    margin-bottom: 10px; 
+    border: 1px solid #ccc; 
+    border-radius: 4px;
+    font-family: inherit; /* Mantém a fonte do site */
+    resize: vertical; /* Permite redimensionar verticalmente */
+}
