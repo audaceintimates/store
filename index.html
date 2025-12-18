@@ -94,11 +94,22 @@
                     <input type="text" id="customer-name" name="name" placeholder="Seu Nome Completo" required>
                     <input type="email" id="customer-email" name="email" placeholder="Seu E-mail" required>
                     
+                    <input type="tel" id="customer-phone" name="phone" placeholder="Seu WhatsApp (com DDD)" required>
+                    <textarea id="customer-address" name="address" placeholder="Seu Endereço Completo (Rua, Número, Bairro, Cidade, CEP)" rows="3" required></textarea>
+                    
                     <label>Forma de Entrega:</label>
                     <div class="delivery-options">
                         <button type="button" class="delivery-btn" data-type="retirada">RETIRADA</button>
                         <button type="button" class="delivery-btn" data-type="entrega">ENTREGA</button>
                     </div>
+                    <input type="hidden" id="delivery-method" name="delivery_method">
+                    
+                    <button type="submit" id="submit-order-btn" class="primary-btn hidden">Ir para Pagamento</button>
+                </form>
+                <div id="freight-warning" class="hidden warning-box">
+                    <p>Como o cálculo do frete não é integrado ao nosso site, você pode aguardar o nosso contato após a finalização da venda, ou combinar o frete agora <a href="https://wa.me/5549914014398?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento" target="_blank">clicando aqui</a>.</p>
+                </div>
+            </div>
                     <input type="hidden" id="delivery-method" name="delivery_method">
                     
                     <button type="submit" id="submit-order-btn" class="primary-btn hidden">Ir para Pagamento</button>
