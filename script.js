@@ -293,13 +293,15 @@ document.querySelectorAll('.delivery-btn').forEach(btn => {
         submitOrderBtn.classList.remove('hidden');
     });
 });
-
 // Envio do Formulário + Redirecionamento
 document.getElementById('order-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Captura dos dados
     const name = document.getElementById('customer-name').value;
     const email = document.getElementById('customer-email').value;
+    const phone = document.getElementById('customer-phone').value;     // Novo
+    const address = document.getElementById('customer-address').value; // Novo
     const deliveryMethod = deliveryInput.value;
 
     submitOrderBtn.textContent = "Processando...";
@@ -312,9 +314,20 @@ document.getElementById('order-form').addEventListener('submit', async (e) => {
     const formData = new FormData();
     formData.append('name', name);
     formData.append('email', email);
+    // Configura o assunto e a mensagem completa
     formData.append('_subject', `Novo Pedido: ${name}`);
-    formData.append('message', `Cliente: ${name}\nEntrega: ${deliveryMethod}\nTotal: ${totalVal}\n\nItens:\n${orderDetails}`);
-    formData.append('_captcha', 'false'); // Desativar captcha do formsubmit se configurado
+    formData.append('message', 
+        `DADOS DO CLIENTE:\n` +
+        `Nome: ${name}\n` +
+        `WhatsApp: ${phone}\n` +
+        `Email: ${email}\n` +
+        `Endereço: ${address}\n\n` +
+        `DETALHES DO PEDIDO:\n` +
+        `Entrega: ${deliveryMethod}\n` +
+        `Total: ${totalVal}\n\n` +
+        `ITENS:\n${orderDetails}`
+    );
+    formData.append('_captcha', 'false'); 
 
     try {
         // 2. Enviar email via FormSubmit (AJAX)
@@ -323,14 +336,11 @@ document.getElementById('order-form').addEventListener('submit', async (e) => {
             body: formData
         });
 
-        // 3. Gerar Link InfinitePay SEM encoding nos caracteres especiais JSON
-        // O formato exigido é estrito: items=[{"name":"X","price":100,"quantity":1},...]
-        
+        // 3. Gerar Link InfinitePay
         let jsonItems = cart.map(item => {
             return `{"name":"${item.name} - ${item.variation}","price":${item.priceInt},"quantity":${item.qty}}`;
         }).join(',');
 
-        // Construção manual da string para evitar encodeURIComponent nos colchetes e chaves
         const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
 
         console.log("Redirecionando para:", finalUrl);
