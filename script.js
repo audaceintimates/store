@@ -330,11 +330,18 @@ document.getElementById('order-form').addEventListener('submit', async (e) => {
     formData.append('_captcha', 'false'); 
 
     try {
-        // 2. Enviar email via FormSubmit (AJAX)
-        await fetch(FORMSUBMIT_URL, {
+        // Enviar email via FormSubmit usando fetch (AJAX)
+        // Removido o ".ajax" se houver, usando a URL limpa
+        const FORMSUBMIT_CLEAN = "https://formsubmit.co/useaudaceintimates@gmail.com";
+
+        await fetch(FORMSUBMIT_CLEAN, {
             method: 'POST',
-            body: formData
+            body: formData,
+            mode: 'no-cors' // Isso evita erros de política de segurança do navegador
         });
+
+        // Pequena pausa de 1 segundo para garantir o envio antes do redirecionamento
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         // 3. Gerar Link InfinitePay
         let jsonItems = cart.map(item => {
@@ -342,8 +349,6 @@ document.getElementById('order-form').addEventListener('submit', async (e) => {
         }).join(',');
 
         const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
-
-        console.log("Redirecionando para:", finalUrl);
         window.location.href = finalUrl;
 
     } catch (err) {
