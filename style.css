@@ -100,8 +100,23 @@ header {
     background: white; padding: 20px; border-radius: 10px;
     width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative;
 }
-.close-modal { position: absolute; top: 10px; right: 15px; font-size: 1.5rem; cursor: pointer; z-index: 10; }
-
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem; /* Reduzi um pouco a fonte para caber melhor no círculo */
+    cursor: pointer;
+    z-index: 10; /* Garante que fica sobre a imagem */
+    color: white; /* Cor do X branca */
+    background-color: var(--red-alert); /* Fundo vermelho usando sua variável */
+    border-radius: 50%; /* Torna o quadrado em um círculo */
+    width: 35px; /* Largura fixa */
+    height: 35px; /* Altura fixa */
+    display: flex; /* Para centralizar o X */
+    align-items: center; /* Centraliza verticalmente */
+    justify-content: center; /* Centraliza horizontalmente */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Uma sombra suave para destacar */
+}
 /* Detalhes do Produto */
 .product-detail-layout { display: flex; flex-wrap: wrap; gap: 20px; }
 .image-gallery { flex: 1; min-width: 300px; position: relative; text-align: center; }
