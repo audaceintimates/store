@@ -1,8 +1,13 @@
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
     document.getElementById('tab-' + tabId).classList.remove('hidden');
-    if(tabId === 'croquis' && document.getElementById('croquis-grid').children.length === 0) loadCroquis();
-    if(tabId === 'portifolio' && document.getElementById('portifolio-grid').children.length === 0) loadPortifolio();
+    
+    if(tabId === 'categorias' && (!document.getElementById('categorias-grid') || document.getElementById('categorias-grid').children.length === 0)) {
+        if(typeof loadCategorias === 'function') loadCategorias();
+    }
+    if(tabId === 'pesquisar' && (!document.getElementById('search-input'))) {
+        if(typeof loadPesquisar === 'function') loadPesquisar();
+    }
 }
 
 function toggleUserModal() {
@@ -50,8 +55,9 @@ async function submitOrder() {
     if(shipping === 'entrega' && !address) return alert("Preencha o endereço.");
 
     const selectedItems = cart.filter(i => i.selected);
-    const total = selectedItems.reduce((acc, item) => acc + parseFloat(item.price), 0);
+    const total = selectedItems.reduce((acc, item) => acc + (parseFloat(item.price) * (item.qty || 1)), 0);
     const productCodes = selectedItems.map(i => i.code).join(',');
+    const productQtds = selectedItems.map(i => i.qty || 1).join(',');
 
     // 1. Send via FormSubmit
     const formData = new FormData();
@@ -62,6 +68,7 @@ async function submitOrder() {
     formData.append('endereco', address);
     formData.append('entrega', shipping);
     formData.append('produtos', productCodes);
+    formData.append('quantidades', productQtds);
     formData.append('total', total.toFixed(2));
 
     showLoader();
@@ -77,6 +84,7 @@ async function submitOrder() {
         action: 'createOrder',
         user: user.fullname,
         products: productCodes,
+        qtd: productQtds,
         address: address,
         shipping: shipping,
         cpf: user.cpf,
@@ -86,7 +94,8 @@ async function submitOrder() {
     // 3. InfinitePay Redirect
     let jsonItems = selectedItems.map(item => {
         let priceInt = Math.round(parseFloat(item.price) * 100);
-        return `{"name":"${item.productname}","price":${priceInt},"quantity":1}`;
+        let qtyInt = parseInt(item.qty) || 1;
+        return `{"name":"${item.productname}","price":${priceInt},"quantity":${qtyInt}}`;
     }).join(',');
 
     const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
