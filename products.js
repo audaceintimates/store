@@ -127,6 +127,34 @@ function openProductPage(prod) {
     const existingButtons = infoCol.querySelectorAll('.btn');
     existingButtons.forEach(b => b.remove());
 
+    // --- SELETOR DE VARIAÇÕES ---
+    const existingVar = document.getElementById('prod-var-container');
+    if (existingVar) existingVar.remove();
+
+    if (prod.var && String(prod.var).trim() !== '') {
+        const variations = String(prod.var).split(',').map(v => v.trim()).filter(v => v !== '');
+        
+        if (variations.length > 0) {
+            const varContainer = document.createElement('div');
+            varContainer.id = 'prod-var-container';
+            varContainer.style.margin = '15px 0';
+            
+            let optionsHtml = '<option value="">-- Selecione --</option>';
+            variations.forEach(v => {
+                optionsHtml += `<option value="${v}">${v}</option>`;
+            });
+
+            varContainer.innerHTML = `
+                <label for="prod-variation" style="margin-right: 10px; font-weight: bold;">Variação:</label>
+                <select id="prod-variation" style="padding: 10px; border-radius: 5px; border: 1px solid var(--border); font-family: var(--font-body); outline: none;">
+                    ${optionsHtml}
+                </select>
+            `;
+            infoCol.appendChild(varContainer);
+        }
+    }
+
+    // --- SELETOR DE QUANTIDADE E ESTOQUE ---
     const existingQty = document.getElementById('prod-qty-container');
     if (existingQty) existingQty.remove();
 
@@ -134,9 +162,11 @@ function openProductPage(prod) {
     const qtyContainer = document.createElement('div');
     qtyContainer.id = 'prod-qty-container';
     qtyContainer.style.margin = '15px 0';
+    
+    // Adicionado bloqueio no oninput para impedir valor acima do estoque
     qtyContainer.innerHTML = `
         <label for="prod-qty" style="margin-right: 10px; font-weight: bold;">Quantidade:</label>
-        <input type="number" id="prod-qty" min="1" max="${maxQtd}" value="1" style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid var(--border);">
+        <input type="number" id="prod-qty" min="1" max="${maxQtd}" value="1" oninput="if(this.value > ${maxQtd}) this.value = ${maxQtd};" style="width: 80px; padding: 10px; border-radius: 5px; border: 1px solid var(--border); font-family: var(--font-body); outline: none;">
         <span style="font-size: 0.9em; color: gray; margin-left: 10px;">(Estoque: ${maxQtd})</span>
     `;
     infoCol.appendChild(qtyContainer);
@@ -166,32 +196,64 @@ function closeProductPage() {
 function addToCartCurrent() {
     if (!currentProduct) return;
     
+    // Validação da Variação
+    const varSelect = document.getElementById('prod-variation');
+    let chosenVar = '';
+    if (varSelect) {
+        chosenVar = varSelect.value;
+        if (!chosenVar) {
+            alert("Por favor, selecione uma variação antes de continuar.");
+            return;
+        }
+    }
+    
+    // Validação da Quantidade e limite
     const qtyInput = document.getElementById('prod-qty');
-    const selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
+    const maxQtd = parseInt(currentProduct.qtd) || 1;
+    let selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
+    if (selectedQty > maxQtd) selectedQty = maxQtd;
+    if (selectedQty < 1) selectedQty = 1;
 
-    const existing = cart.find(i => i.code === currentProduct.code);
-    if (!existing) {
-        cart.push({ ...currentProduct, selected: true, qty: selectedQty });
+    // Busca se ESSE produto com ESSA variação específica já existe no carrinho
+    const existingIndex = cart.findIndex(i => i.code === currentProduct.code && i.selectedVar === chosenVar);
+    
+    if (existingIndex === -1) {
+        cart.push({ ...currentProduct, selected: true, qty: selectedQty, selectedVar: chosenVar });
         updateCartUI();
         alert("Adicionado ao carrinho!");
         closeProductPage();
     } else {
-        alert("Produto já está no carrinho.");
+        alert("Este produto com esta variação já está no carrinho.");
     }
 }
 
 function buyNowCurrent() {
     if (!currentProduct) return;
     
+    // Validação da Variação
+    const varSelect = document.getElementById('prod-variation');
+    let chosenVar = '';
+    if (varSelect) {
+        chosenVar = varSelect.value;
+        if (!chosenVar) {
+            alert("Por favor, selecione uma variação antes de continuar.");
+            return;
+        }
+    }
+    
+    // Validação da Quantidade e limite
     const qtyInput = document.getElementById('prod-qty');
-    const selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
+    const maxQtd = parseInt(currentProduct.qtd) || 1;
+    let selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
+    if (selectedQty > maxQtd) selectedQty = maxQtd;
+    if (selectedQty < 1) selectedQty = 1;
 
-    const existingIndex = cart.findIndex(i => i.code === currentProduct.code);
+    const existingIndex = cart.findIndex(i => i.code === currentProduct.code && i.selectedVar === chosenVar);
     
     cart.forEach(item => item.selected = false);
 
     if (existingIndex === -1) {
-        cart.push({ ...currentProduct, selected: true, qty: selectedQty });
+        cart.push({ ...currentProduct, selected: true, qty: selectedQty, selectedVar: chosenVar });
     } else {
         cart[existingIndex].selected = true;
         cart[existingIndex].qty = selectedQty;
@@ -213,9 +275,13 @@ function updateCartUI() {
     cart.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'cart-item';
+        
+        // Exibe a variação escolhida no texto se existir
+        const varText = item.selectedVar ? ` - ${item.selectedVar}` : '';
+        
         div.innerHTML = `
             <input type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleCartItem(${index}, this.checked)">
-            <span>${item.productname} (x${item.qty || 1})</span>
+            <span>${item.productname}${varText} (x${item.qty || 1})</span>
             <span>R$ ${(parseFloat(item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
             <button onclick="removeFromCart(${index})" style="background:none;border:none;color:red;cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
         `;
