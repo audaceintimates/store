@@ -308,18 +308,43 @@ function updateCartUI() {
     cart.forEach((item, index) => {
         const div = document.createElement('div');
         div.className = 'cart-item';
+        // Adicionando um display flex e gap para não amassar os itens no carrinho
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '10px';
+        div.style.marginBottom = '10px';
         
         // Exibe a variação escolhida no texto se existir
         const varText = item.selectedVar ? ` - ${item.selectedVar}` : '';
         
+        // Determina o máximo com base no estoque
+        let maxQtd = parseInt(item.qtd);
+        if (isNaN(maxQtd) || maxQtd < 1) maxQtd = 1;
+        
+        // O input entra no lugar do "(x1)", permitindo a mudança ali mesmo!
         div.innerHTML = `
             <input type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleCartItem(${index}, this.checked)">
-            <span>${item.productname}${varText} (x${item.qty || 1})</span>
-            <span>R$ ${(parseFloat(item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
+            <span style="flex: 1;">${item.productname}${varText}</span>
+            <input type="number" min="1" max="${maxQtd}" value="${item.qty || 1}" onchange="updateCartItemQty(${index}, this.value)" style="width: 55px; padding: 5px; border-radius: 4px; border: 1px solid var(--border); outline: none; text-align: center;">
+            <span style="white-space: nowrap;">R$ ${(parseFloat(item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
             <button onclick="removeFromCart(${index})" style="background:none;border:none;color:red;cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
         `;
         list.appendChild(div);
     });
+}
+
+// NOVA FUNÇÃO: Atualiza o carrinho e o valor total se o cliente alterar a quantidade direto do carrinho
+function updateCartItemQty(index, newQty) {
+    let qty = parseInt(newQty);
+    let maxQtd = parseInt(cart[index].qtd);
+    
+    if (isNaN(maxQtd) || maxQtd < 1) maxQtd = 1;
+    
+    if (qty > maxQtd) qty = maxQtd;
+    if (qty < 1) qty = 1;
+    
+    cart[index].qty = qty;
+    updateCartUI(); // Re-renderiza para atualizar o subtotal da linha do carrinho imediatamente
 }
 
 function toggleCartItem(index, isChecked) {
