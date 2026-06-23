@@ -216,3 +216,73 @@ html, body {
     position: relative;
     max-width: 100%;
 }
+/* --- Ajustes para Grids de Categorias e Pesquisa --- */
+
+/* Container geral das categorias para garantir alinhamento */
+#categoria-produtos {
+    text-align: left;
+    width: 100%;
+}
+
+/* Redimensiona e alinha o botão de voltar */
+#categoria-produtos .btn {
+    width: auto; /* Remove a largura de 100% padrão dos botões */
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    margin-bottom: 30px !important;
+}
+
+/* Cria o formato de grade com 4 colunas (Desktop) */
+#categoria-produtos-grid,
+#search-results, /* Adicione o ID correspondente ao seu container de pesquisa aqui, se for diferente */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+    width: 100%;
+}
+
+/* Garante que o card não vaze da coluna */
+#categoria-produtos-grid .product-card,
+.grid-container .product-card {
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Trava a proporção das imagens para não ficarem gigantes */
+#categoria-produtos-grid .product-card img,
+.grid-container .product-card img {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    margin-bottom: 15px;
+}
+
+/* --- Responsividade Mobile (Pesquisa e Categorias) --- */
+
+@media (max-width: 768px) {
+    /* 2 colunas em telas médias (Tablets e celulares deitados) */
+    #categoria-produtos-grid,
+    #search-results,
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* 2 colunas mantidas em telas muito pequenas (Smartphones) */
+    #categoria-produtos-grid,
+    #search-results,
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    /* Botão de voltar ligeiramente menor no celular */
+    #categoria-produtos .btn {
+        padding: 8px 15px;
+        font-size: 0.75rem;
+    }
+}
