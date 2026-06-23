@@ -56,7 +56,9 @@ async function submitOrder() {
 
     const selectedItems = cart.filter(i => i.selected);
     const total = selectedItems.reduce((acc, item) => acc + (parseFloat(item.price) * (item.qty || 1)), 0);
-    const productCodes = selectedItems.map(i => i.code).join(',');
+    
+    // Garantindo a captura do 'code' para a coluna de produtos e a 'qty' para a coluna de quantidades
+    const productCodes = selectedItems.map(i => i.code || '').join(',');
     const productQtds = selectedItems.map(i => i.qty || 1).join(',');
 
     // 1. Send via FormSubmit
@@ -67,8 +69,8 @@ async function submitOrder() {
     formData.append('telefone', user.tel);
     formData.append('endereco', address);
     formData.append('entrega', shipping);
-    formData.append('produtos', productCodes);
-    formData.append('quantidades', productQtds);
+    formData.append('produtos', productCodes); // Envia os códigos (Ref)
+    formData.append('quantidades', productQtds); // Envia as respectivas quantidades
     formData.append('total', total.toFixed(2));
 
     showLoader();
@@ -79,7 +81,7 @@ async function submitOrder() {
         });
     } catch(e) { console.log("FormSubmit Error", e); }
 
-    // 2. Save to Sheets
+    // 2. Save to Sheets (Os nomes das propriedades enviadas para o API coincidem com as capturas no App Script)
     const res = await apiRequest({
         action: 'createOrder',
         user: user.fullname,
