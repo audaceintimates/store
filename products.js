@@ -281,12 +281,14 @@ function buyNowCurrent() {
     if (selectedQty > maxQtd) selectedQty = maxQtd;
     if (selectedQty < 1) selectedQty = 1;
 
-    const existingIndex = cart.findIndex(i => i.code === currentProduct.code && i.selectedVar === chosenVar);
+   const existingIndex = cart.findIndex(i => i.code === currentProduct.code && i.selectedVar === chosenVar);
     
-    cart.forEach(item => item.selected = false);
+    // Asseguramos que todos os itens no carrinho continuem selecionados para o checkout em massa
+    cart.forEach(item => item.selected = true); 
 
     if (existingIndex === -1) {
-        cart.push({ ...currentProduct, selected: true, qty: selectedQty, selectedVar: chosenVar });
+        // Usa um clone limpo para evitar bugs de referência na array quando adiciona o 2º produto igual
+        cart.push(JSON.parse(JSON.stringify({ ...currentProduct, selected: true, qty: selectedQty, selectedVar: chosenVar })));
     } else {
         cart[existingIndex].selected = true;
         cart[existingIndex].qty = selectedQty;
