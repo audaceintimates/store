@@ -154,33 +154,52 @@ function openProductPage(prod) {
         }
     }
 
-    // --- SELETOR DE QUANTIDADE E ESTOQUE ---
+    // --- SELETOR DE QUANTIDADE E ESTOQUE CORRIGIDO ---
     const existingQty = document.getElementById('prod-qty-container');
     if (existingQty) existingQty.remove();
 
-    const maxQtd = parseInt(prod.qtd) || 1;
+    // Lê o valor exato da planilha. Se a célula for inválida, assume 1, mas respeita o zero.
+    let maxQtd = parseInt(prod.qtd);
+    if (isNaN(maxQtd)) maxQtd = 1;
+
     const qtyContainer = document.createElement('div');
     qtyContainer.id = 'prod-qty-container';
     qtyContainer.style.margin = '15px 0';
     
-    // Adicionado bloqueio no oninput para impedir valor acima do estoque
-    qtyContainer.innerHTML = `
-        <label for="prod-qty" style="margin-right: 10px; font-weight: bold;">Quantidade:</label>
-        <input type="number" id="prod-qty" min="1" max="${maxQtd}" value="1" oninput="if(this.value > ${maxQtd}) this.value = ${maxQtd};" style="width: 80px; padding: 10px; border-radius: 5px; border: 1px solid var(--border); font-family: var(--font-body); outline: none;">
-        <span style="font-size: 0.9em; color: gray; margin-left: 10px;">(Estoque: ${maxQtd})</span>
-    `;
+    // Se o estoque for maior que zero, mostra normal. Se for zero, trava o input e mostra "Esgotado".
+    if (maxQtd > 0) {
+        qtyContainer.innerHTML = `
+            <label for="prod-qty" style="margin-right: 10px; font-weight: bold;">Quantidade:</label>
+            <input type="number" id="prod-qty" min="1" max="${maxQtd}" value="1" oninput="if(this.value > ${maxQtd}) this.value = ${maxQtd};" style="width: 80px; padding: 10px; border-radius: 5px; border: 1px solid var(--border); font-family: var(--font-body); outline: none;">
+            <span style="font-size: 0.9em; color: gray; margin-left: 10px;">(Estoque: ${maxQtd})</span>
+        `;
+    } else {
+        qtyContainer.innerHTML = `
+            <label for="prod-qty" style="margin-right: 10px; font-weight: bold;">Quantidade:</label>
+            <input type="number" id="prod-qty" value="0" disabled style="width: 80px; padding: 10px; border-radius: 5px; border: 1px solid var(--border); font-family: var(--font-body); outline: none; background: var(--bg-color); opacity: 0.7;">
+            <span style="font-size: 0.9em; color: red; font-weight: bold; margin-left: 10px;">(Esgotado)</span>
+        `;
+    }
     infoCol.appendChild(qtyContainer);
 
     const addCartBtn = document.createElement('button');
     addCartBtn.className = 'btn';
     addCartBtn.setAttribute('data-i18n', 'btn_add_cart');
-    addCartBtn.innerText = 'Adicionar ao Carrinho';
-    addCartBtn.onclick = () => checkAuthBeforeAction(addToCartCurrent);
+    addCartBtn.innerText = maxQtd > 0 ? 'Adicionar ao Carrinho' : 'Esgotado';
+    addCartBtn.onclick = () => { if (maxQtd > 0) checkAuthBeforeAction(addToCartCurrent); }
+    if (maxQtd <= 0) {
+        addCartBtn.style.opacity = '0.5';
+        addCartBtn.style.cursor = 'not-allowed';
+    }
 
     const buyNowBtn = document.createElement('button');
     buyNowBtn.className = 'btn mt-1';
-    buyNowBtn.innerText = 'Comprar Agora';
-    buyNowBtn.onclick = () => checkAuthBeforeAction(buyNowCurrent);
+    buyNowBtn.innerText = maxQtd > 0 ? 'Comprar Agora' : 'Esgotado';
+    buyNowBtn.onclick = () => { if (maxQtd > 0) checkAuthBeforeAction(buyNowCurrent); }
+    if (maxQtd <= 0) {
+        buyNowBtn.style.opacity = '0.5';
+        buyNowBtn.style.cursor = 'not-allowed';
+    }
 
     infoCol.appendChild(addCartBtn);
     infoCol.appendChild(buyNowBtn);
@@ -196,6 +215,14 @@ function closeProductPage() {
 function addToCartCurrent() {
     if (!currentProduct) return;
     
+    let maxQtd = parseInt(currentProduct.qtd);
+    if (isNaN(maxQtd)) maxQtd = 1;
+
+    if (maxQtd <= 0) {
+        alert("Este produto está esgotado.");
+        return;
+    }
+    
     // Validação da Variação
     const varSelect = document.getElementById('prod-variation');
     let chosenVar = '';
@@ -209,7 +236,6 @@ function addToCartCurrent() {
     
     // Validação da Quantidade e limite
     const qtyInput = document.getElementById('prod-qty');
-    const maxQtd = parseInt(currentProduct.qtd) || 1;
     let selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
     if (selectedQty > maxQtd) selectedQty = maxQtd;
     if (selectedQty < 1) selectedQty = 1;
@@ -230,6 +256,14 @@ function addToCartCurrent() {
 function buyNowCurrent() {
     if (!currentProduct) return;
     
+    let maxQtd = parseInt(currentProduct.qtd);
+    if (isNaN(maxQtd)) maxQtd = 1;
+
+    if (maxQtd <= 0) {
+        alert("Este produto está esgotado.");
+        return;
+    }
+    
     // Validação da Variação
     const varSelect = document.getElementById('prod-variation');
     let chosenVar = '';
@@ -243,7 +277,6 @@ function buyNowCurrent() {
     
     // Validação da Quantidade e limite
     const qtyInput = document.getElementById('prod-qty');
-    const maxQtd = parseInt(currentProduct.qtd) || 1;
     let selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
     if (selectedQty > maxQtd) selectedQty = maxQtd;
     if (selectedQty < 1) selectedQty = 1;
