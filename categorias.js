@@ -2,7 +2,8 @@ function loadCategorias() {
     const container = document.getElementById('tab-categorias');
     if (!container) return;
 
-    if (document.getElementById('categorias-grid')) {
+    // Ajuste: Só aborta a função se o grid já existir E estiver preenchido com as categorias
+    if (document.getElementById('categorias-grid') && document.getElementById('categorias-grid').children.length > 0) {
         return; 
     }
 
@@ -19,7 +20,9 @@ function loadCategorias() {
     `;
 
     const grid = document.getElementById('categorias-grid');
-    const categories = [...new Set(globalProducts.map(p => p.category).filter(c => c && c.trim() !== ''))];
+    
+    // Ajuste: Forçamos a conversão para String. Isso evita que a página quebre caso a categoria na planilha seja um número inteiro.
+    const categories = [...new Set(globalProducts.map(p => String(p.category || '')).filter(c => c.trim() !== ''))];
 
     if (categories.length === 0) {
         grid.innerHTML = '<p>Nenhuma categoria encontrada.</p>';
@@ -49,7 +52,8 @@ function showCategoryProducts(category) {
     const grid = document.getElementById('categoria-produtos-grid');
     grid.innerHTML = '';
 
-    const filtered = globalProducts.filter(p => p.category === category);
+    // Ajuste: Forçamos p.category para String na hora de filtrar, para garantir que as variáveis combinem perfeitamente
+    const filtered = globalProducts.filter(p => String(p.category || '') === category);
     
     if (filtered.length === 0) {
         grid.innerHTML = '<p>Nenhum produto nesta categoria.</p>';
