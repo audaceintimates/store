@@ -4,127 +4,176 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audace Intimates</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
+    <div id="loader" class="hidden">
+        <div class="spinner"></div>
+    </div>
 
-    <header>
-        <div class="header-container">
-            <button id="menu-btn" class="icon-btn"><i class="fas fa-bars"></i></button>
-            <div class="logo-area">
-                <img src="https://64.media.tumblr.com/a7a2d66d6ff934b3bb048d746cab21ce/898c9ad942facd8f-19/s2048x3072/558173e774b26d37da4c6d94c046f89127c3df76.pnj" alt="Audace Logo" class="logo">
+    <!-- AUTHENTICATION VIEWS -->
+    <div id="auth-container">
+        <div id="login-view" class="view active">
+            <h1 data-i18n="login_title">Login</h1>
+            <input type="email" id="loginEmail" placeholder="Email" data-i18n-ph="email_ph">
+            <input type="password" id="loginPassword" placeholder="Senha" data-i18n-ph="pass_ph">
+            <button onclick="login()" class="btn" data-i18n="btn_enter">Entrar</button>
+            <div class="auth-links">
+                <button class="text-btn" onclick="showView('reset-view')" data-i18n="btn_forgot">Esqueci a senha</button>
+                <button class="text-btn" onclick="showView('register-view')" data-i18n="btn_register">Registrar-se</button>
             </div>
-            <button id="cart-btn" class="icon-btn">
-                <i class="fas fa-shopping-bag"></i>
-                <span id="cart-count">0</span>
-            </button>
         </div>
-    </header>
 
-    <div class="search-bar-container">
-        <input type="text" id="search-input" placeholder="O que você procura hoje?">
-    </div>
+        <div id="register-view" class="view hidden">
+            <h1 data-i18n="register_title">Registrar-se</h1>
+            <input type="text" id="regName" placeholder="Nome Completo" data-i18n-ph="name_ph">
+            <input type="email" id="regEmail" placeholder="Email" data-i18n-ph="email_ph">
+            <input type="text" id="regTel" placeholder="Telefone" data-i18n-ph="tel_ph">
+            <input type="text" id="regCpf" placeholder="CPF (11 dígitos)" data-i18n-ph="cpf_ph" maxlength="11">
+            <input type="password" id="regPassword" placeholder="Senha" data-i18n-ph="pass_ph">
+            <input type="password" id="regPasswordConfirm" placeholder="Confirmar Senha" data-i18n-ph="pass_conf_ph">
+            <small class="pass-rules" data-i18n="pass_rules">A senha deve ter entre 6 e 20 caracteres, incluindo maiúscula, minúscula, número e caractere especial.</small>
+            <button onclick="register()" class="btn" data-i18n="btn_register">Registrar</button>
+            <button class="text-btn mt-1" onclick="showView('login-view')" data-i18n="btn_back">Voltar</button>
+        </div>
 
-    <div id="side-menu" class="side-menu">
-        <button id="close-menu" class="close-btn">&times;</button>
-        <h3>Categorias</h3>
-        <ul id="category-list">
-            </ul>
-    </div>
-    <div id="menu-overlay" class="overlay"></div>
-
-    <main class="products-container" id="products-grid">
-        <div class="loading">Carregando produtos...</div>
-    </main>
-
-    <div id="product-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" id="close-product-modal">&times;</span>
-            
-            <div class="product-detail-layout">
-                <div class="image-gallery">
-                    <button class="nav-btn prev-btn"><i class="fas fa-chevron-left"></i></button>
-                    <img id="modal-img" src="" alt="Produto">
-                    <button class="nav-btn next-btn"><i class="fas fa-chevron-right"></i></button>
-                </div>
-                
-                <div class="info-section">
-                    <h2 id="modal-title">Nome do Produto</h2>
-                    <p id="modal-price" class="price">R$ 0,00</p>
-                    <p id="modal-desc">Descrição do produto...</p>
-                    
-                    <div class="variations-section">
-                        <label>Variações:</label>
-                        <select id="modal-variation">
-                            </select>
-                    </div>
-
-                    <div class="quantity-section">
-                        <label>Quantidade:</label>
-                        <input type="number" id="modal-qty" value="1" min="1">
-                        <span id="stock-display" class="stock-info">Estoque: 10</span>
-                    </div>
-
-                    <div class="action-buttons" id="modal-actions">
-                        <button id="add-to-cart-btn" class="primary-btn">Adicionar ao Carrinho</button>
-                        <button id="buy-now-btn" class="secondary-btn">Comprar Agora</button>
-                    </div>
-                    <div id="sold-out-msg" class="hidden error-msg">ESGOTADO</div>
-                </div>
-            </div>
+        <div id="reset-view" class="view hidden">
+            <h1 data-i18n="reset_title">Recuperar Senha</h1>
+            <input type="text" id="resetName" placeholder="Nome Completo" data-i18n-ph="name_ph">
+            <input type="email" id="resetEmail" placeholder="Email" data-i18n-ph="email_ph">
+            <input type="text" id="resetTel" placeholder="Telefone" data-i18n-ph="tel_ph">
+            <input type="password" id="resetNewPass" placeholder="Nova Senha" data-i18n-ph="new_pass_ph">
+            <button onclick="resetPassword()" class="btn" data-i18n="btn_reset">Criar nova senha</button>
+            <button class="text-btn mt-1" onclick="showView('login-view')" data-i18n="btn_back">Voltar</button>
         </div>
     </div>
 
-    <div id="cart-modal" class="modal hidden">
-        <div class="modal-content cart-content">
-            <span class="close-modal" id="close-cart-modal">&times;</span>
-            <h2>Seu Carrinho</h2>
-            
-            <div id="cart-items" class="cart-items-list">
-                </div>
+    <!-- MAIN APP VIEW -->
+    <div id="main-app" class="hidden">
+        <header>
+            <button id="hamburger-btn" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo-container">
+                <img src="logo.png" alt="Audace Intimates" class="logo">
+            </div>
+            <nav>
+                <button onclick="switchTab('home')" data-i18n="nav_home">Loja</button>
+                <button onclick="switchTab('croquis')" data-i18n="nav_croquis">Croquis</button>
+                <button onclick="switchTab('portifolio')" data-i18n="nav_portifolio">Portifólio</button>
+            </nav>
+            <div class="header-icons">
+                <div class="user-avatar" onclick="toggleUserModal()" id="userAvatarBtn">U</div>
+                <button class="cart-btn" onclick="toggleCartModal()"><i class="fa-solid fa-bag-shopping"></i> <span id="cart-count">0</span></button>
+            </div>
+        </header>
+        <div id="mobile-menu" class="hidden">
+            <button onclick="switchTab('home'); toggleMobileMenu()" data-i18n="nav_home">Loja</button>
+            <button onclick="switchTab('categorias'); toggleMobileMenu()" data-i18n="nav_categorias">Categorias</button>
+            <button onclick="switchTab('pesquisar'); toggleMobileMenu()" data-i18n="nav_pesquisar">Pesquisar</button>
+        </div>
 
-            <div class="cart-summary">
-                <p>Total: <span id="cart-total">R$ 0,00</span></p>
+        <div id="user-modal" class="modal-float hidden">
+            <p id="um-name"></p>
+            <p id="um-email"></p>
+            <button onclick="logout()" class="btn-small" data-i18n="btn_logout">Sair</button>
+        </div>
+
+        <div id="cart-modal" class="modal-float hidden">
+            <h3 data-i18n="cart_title">Carrinho</h3>
+            <div id="cart-items"></div>
+            <button class="btn" onclick="openCheckout()" data-i18n="btn_buy">Comprar</button>
+        </div>
+
+        <!-- TABS -->
+        <main>
+            <div id="tab-home" class="tab-content active">
+                <div class="products-grid" id="products-grid"></div>
             </div>
 
-            <div id="checkout-form-container" class="hidden">
-                <h3>Dados para o Pedido</h3>
-                <form id="order-form">
-                    <input type="text" id="customer-name" name="name" placeholder="Seu Nome Completo" required>
-                    <input type="email" id="customer-email" name="email" placeholder="Seu E-mail" required>
-                    
-                    <input type="tel" id="customer-phone" name="phone" placeholder="Seu WhatsApp (com DDD)" required>
-                    <textarea id="customer-address" name="address" placeholder="Seu Endereço Completo (Rua, Número, Bairro, Cidade, CEP)" rows="3" required></textarea>
-                    
-                    <label>Forma de Entrega:</label>
-                    <div class="delivery-options">
-                        <button type="button" class="delivery-btn" data-type="retirada">RETIRADA</button>
-                        <button type="button" class="delivery-btn" data-type="entrega">ENTREGA</button>
-                    </div>
-                    <input type="hidden" id="delivery-method" name="delivery_method">
-                    
-                    <button type="submit" id="submit-order-btn" class="primary-btn hidden">Ir para Pagamento</button>
-                </form>
-                <div id="freight-warning" class="hidden warning-box">
-                    <p>Como o cálculo do frete não é integrado ao nosso site, você pode aguardar o nosso contato após a finalização da venda, ou combinar o frete agora <a href="https://wa.me/5549914014398?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento" target="_blank">clicando aqui</a>.</p>
-                </div>
-            </div>
-                    <input type="hidden" id="delivery-method" name="delivery_method">
-                    
-                    <button type="submit" id="submit-order-btn" class="primary-btn hidden">Ir para Pagamento</button>
-                </form>
-                <div id="freight-warning" class="hidden warning-box">
-                    <p>Como o cálculo do frete não é integrado ao nosso site, você pode aguardar o nosso contato após a finalização da venda, ou combinar o frete agora <a href="https://wa.me/5549914014398?text=Ol%C3%A1!%20Estou%20fazendo%20meu%20pedido%20pelo%20site%20e%20gostaria%20de%20saber%20o%20frete%20antes%20de%20finalizar%20o%20pagamento" target="_blank">clicando aqui</a>.</p>
-                </div>
+            <div id="tab-croquis" class="tab-content hidden">
+                <div class="gallery-grid" id="croquis-grid"></div>
             </div>
 
-            <div class="cart-actions" id="initial-cart-actions">
-                <button id="finalize-cart-btn" class="primary-btn">Finalizar Compra</button>
+            <div id="tab-portifolio" class="tab-content hidden">
+                <div class="gallery-grid" id="portifolio-grid"></div>
+            </div>
+        </main>
+
+        <!-- PRODUCT PAGE MODAL -->
+        <div id="product-page" class="full-modal hidden">
+            <button class="close-btn" onclick="closeProductPage()">&times;</button>
+            <div class="product-page-content">
+                <div class="prod-img-col" id="prod-page-imgs"></div>
+                <div class="prod-info-col">
+                    <h2 id="prod-page-name"></h2>
+                    <p class="price" id="prod-page-price"></p>
+                    <div class="desc" id="prod-page-desc"></div>
+                    <button class="btn" onclick="addToCartCurrent()" data-i18n="btn_add_cart">Adicionar ao Carrinho</button>
+                </div>
             </div>
         </div>
+
+        <!-- CHECKOUT MODAL -->
+        <div id="checkout-modal" class="full-modal hidden">
+            <button class="close-btn" onclick="closeCheckout()">&times;</button>
+            <div class="checkout-form-container">
+                <h2 data-i18n="checkout_title">Finalizar Pedido</h2>
+                <input type="text" id="chkName" placeholder="Nome Completo" readonly>
+                <select id="chkShipping" onchange="toggleAddress()">
+                    <option value="entrega" data-i18n="opt_delivery">Entrega</option>
+                    <option value="retirada" data-i18n="opt_pickup">Retirada</option>
+                </select>
+                <input type="text" id="chkAddress" placeholder="Endereço Completo">
+                <p id="pickup-address" class="hidden">Rua Engenho Laranjeiras, 1170, Ceará-Mirim/RN - Brasil</p>
+                <input type="text" id="chkCpf" placeholder="CPF" readonly>
+                <input type="text" id="chkTel" placeholder="Telefone" readonly>
+                <button class="btn" onclick="submitOrder()" data-i18n="btn_finish">Concluir Pagamento</button>
+            </div>
+        </div>
+
+        <!-- LIGHTBOX -->
+        <div id="lightbox" class="full-modal hidden" onclick="closeLightbox()">
+            <img id="lightbox-img" src="">
+        </div>
+
+        <footer>
+            <div class="footer-info">
+        <p> <a href="https://maps.app.goo.gl/Km4yEtivkri8QCFs9" target="_blank" style="text-decoration: none; color: inherit;">
+                <i class="fa-solid fa-map-pin"></i> Rua Engenho Laranjeiras, 1170, Ceará-Mirim/RN - Brasil
+            </a> </p>
+        <p>
+            <a href="https://wa.me/5584991007669" target="_blank" style="text-decoration: none; color: inherit;">
+                <i class="fa-brands fa-whatsapp"></i> +55 84 99140-1439
+            </a>
+        </p>
+        <p>
+            <a href="https://www.instagram.com/audaceintimates" target="_blank" style="text-decoration: none; color: inherit;">
+                <i class="fa-brands fa-instagram"></i> @audaceintimates
+            </a>
+        </p>
+    </div>
+            <div class="dev-credits">
+                <p data-i18n="dev_by">Desenvolvido por</p>
+                <img src="devlogo.png" alt="MicaDev" class="dev-logo">
+                <a href="https://micadevsparkles.github.io/mywork" target="_blank" data-i18n="know_here">conheça aqui</a>
+            </div>
+        </footer>
     </div>
 
-    <script src="script.js"></script>
+    <!-- SCRIPTS -->
+    <script>const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbweD902NoZMn4yocA0S_lt976SHpS7f-Li4K9jvsqEtaqR98AJxxe0se0ORrL5J5e0/exec";</script>
+    <script src="language.js"></script>
+    <script src="auth.js"></script>
+    <script src="products.js"></script>
+    <script src="home.js"></script>
+    <script src="croquis.js"></script>
+    <script src="portifolio.js"></script>
+    <script>
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
 </body>
 </html>
