@@ -93,12 +93,16 @@ async function submitOrder() {
         total: total.toFixed(2)
     });
 
-    // 3. InfinitePay Redirect
+   // 3. InfinitePay Redirect
     let jsonItems = selectedItems.map(item => {
         let priceInt = Math.round(parseFloat(item.price) * 100);
         let qtyInt = parseInt(item.qty) || 1;
-        return `{"name":"${item.productname}","price":${priceInt},"quantity":${qtyInt}}`;
-    }).join(',');
+        // encodeURIComponent transforma os espaços em %20, garantindo que a URL não quebre na leitura da lista
+        return `{"name":"${encodeURIComponent(item.productname)}","price":${priceInt},"quantity":${qtyInt}}`;
+    }).join(','); // O .join(',') já garante a vírgula entre as chaves de cada produto
+
+    const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
+    window.location.href = finalUrl;
 
     const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
     window.location.href = finalUrl;
