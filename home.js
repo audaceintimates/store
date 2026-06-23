@@ -103,7 +103,4 @@ async function submitOrder() {
 
     const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
     window.location.href = finalUrl;
-
-    const finalUrl = `${INFINITE_BASE}[${jsonItems}]&redirect_url=${STORE_URL}`;
-    window.location.href = finalUrl;
 }
