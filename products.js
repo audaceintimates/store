@@ -45,11 +45,9 @@ function openProductPage(prod) {
     imgCol.innerHTML = '';
     
     if (prod.img && prod.img.length > 0) {
-        // Filtra imagens válidas
         const validImgs = prod.img.filter(src => src.trim() !== '');
         
         if (validImgs.length > 0) {
-            // Estilos dinâmicos para esconder a barra de rolagem horizontal nativa
             if (!document.getElementById('gallery-style')) {
                 const style = document.createElement('style');
                 style.id = 'gallery-style';
@@ -60,21 +58,18 @@ function openProductPage(prod) {
                 document.head.appendChild(style);
             }
 
-            // Container pai da galeria
             const galleryWrapper = document.createElement('div');
             galleryWrapper.style.position = 'relative';
             galleryWrapper.style.width = '100%';
 
-            // Trilha de rolagem horizontal
             const track = document.createElement('div');
             track.className = 'gallery-track';
             track.style.display = 'flex';
             track.style.overflowX = 'auto';
-            track.style.scrollSnapType = 'x mandatory'; // Trava a rolagem na imagem perfeitamente
+            track.style.scrollSnapType = 'x mandatory';
             track.style.scrollBehavior = 'smooth';
             track.style.width = '100%';
 
-            // Container das bolinhas
             const dotsContainer = document.createElement('div');
             dotsContainer.style.display = 'flex';
             dotsContainer.style.justifyContent = 'center';
@@ -82,10 +77,9 @@ function openProductPage(prod) {
             dotsContainer.style.marginTop = '15px';
 
             validImgs.forEach((src, index) => {
-                // Invólucro da Imagem
                 const imgWrapper = document.createElement('div');
-                imgWrapper.style.flex = '0 0 100%'; // Ocupa 100% do espaço visível
-                imgWrapper.style.scrollSnapAlign = 'start'; // Alinhamento no slide
+                imgWrapper.style.flex = '0 0 100%';
+                imgWrapper.style.scrollSnapAlign = 'start';
                 
                 const img = document.createElement('img');
                 img.src = src.trim();
@@ -95,17 +89,14 @@ function openProductPage(prod) {
                 imgWrapper.appendChild(img);
                 track.appendChild(imgWrapper);
 
-                // Bolinha indicadora
                 const dot = document.createElement('div');
                 dot.style.width = '12px';
                 dot.style.height = '12px';
                 dot.style.borderRadius = '50%';
-                // Cores puxadas das suas variáveis CSS
                 dot.style.backgroundColor = index === 0 ? 'var(--text-color)' : 'var(--border)';
                 dot.style.cursor = 'pointer';
                 dot.style.transition = 'background-color 0.3s';
                 
-                // Evento de clique para pular para a imagem correta
                 dot.onclick = () => {
                     track.scrollTo({ left: track.clientWidth * index, behavior: 'smooth' });
                 };
@@ -113,7 +104,6 @@ function openProductPage(prod) {
                 dotsContainer.appendChild(dot);
             });
 
-            // Atualiza a cor da bolinha conforme desliza manualmente (Mobile ou Scroll)
             track.addEventListener('scroll', () => {
                 const scrollPos = track.scrollLeft;
                 const index = Math.round(scrollPos / track.clientWidth);
@@ -125,7 +115,6 @@ function openProductPage(prod) {
 
             galleryWrapper.appendChild(track);
             
-            // Só exibe as bolinhas se houver mais de 1 imagem
             if (validImgs.length > 1) {
                 galleryWrapper.appendChild(dotsContainer);
             }
@@ -138,17 +127,29 @@ function openProductPage(prod) {
     const existingButtons = infoCol.querySelectorAll('.btn');
     existingButtons.forEach(b => b.remove());
 
+    const existingQty = document.getElementById('prod-qty-container');
+    if (existingQty) existingQty.remove();
+
+    const maxQtd = parseInt(prod.qtd) || 1;
+    const qtyContainer = document.createElement('div');
+    qtyContainer.id = 'prod-qty-container';
+    qtyContainer.style.margin = '15px 0';
+    qtyContainer.innerHTML = `
+        <label for="prod-qty" style="margin-right: 10px; font-weight: bold;">Quantidade:</label>
+        <input type="number" id="prod-qty" min="1" max="${maxQtd}" value="1" style="width: 60px; padding: 5px; border-radius: 5px; border: 1px solid var(--border);">
+        <span style="font-size: 0.9em; color: gray; margin-left: 10px;">(Estoque: ${maxQtd})</span>
+    `;
+    infoCol.appendChild(qtyContainer);
+
     const addCartBtn = document.createElement('button');
     addCartBtn.className = 'btn';
     addCartBtn.setAttribute('data-i18n', 'btn_add_cart');
     addCartBtn.innerText = 'Adicionar ao Carrinho';
-    // Protegido com checkAuthBeforeAction
     addCartBtn.onclick = () => checkAuthBeforeAction(addToCartCurrent);
 
     const buyNowBtn = document.createElement('button');
     buyNowBtn.className = 'btn mt-1';
     buyNowBtn.innerText = 'Comprar Agora';
-    // Protegido com checkAuthBeforeAction
     buyNowBtn.onclick = () => checkAuthBeforeAction(buyNowCurrent);
 
     infoCol.appendChild(addCartBtn);
@@ -164,9 +165,13 @@ function closeProductPage() {
 
 function addToCartCurrent() {
     if (!currentProduct) return;
+    
+    const qtyInput = document.getElementById('prod-qty');
+    const selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
+
     const existing = cart.find(i => i.code === currentProduct.code);
     if (!existing) {
-        cart.push({ ...currentProduct, selected: true, qty: 1 });
+        cart.push({ ...currentProduct, selected: true, qty: selectedQty });
         updateCartUI();
         alert("Adicionado ao carrinho!");
         closeProductPage();
@@ -177,14 +182,19 @@ function addToCartCurrent() {
 
 function buyNowCurrent() {
     if (!currentProduct) return;
+    
+    const qtyInput = document.getElementById('prod-qty');
+    const selectedQty = qtyInput ? parseInt(qtyInput.value) : 1;
+
     const existingIndex = cart.findIndex(i => i.code === currentProduct.code);
     
     cart.forEach(item => item.selected = false);
 
     if (existingIndex === -1) {
-        cart.push({ ...currentProduct, selected: true, qty: 1 });
+        cart.push({ ...currentProduct, selected: true, qty: selectedQty });
     } else {
         cart[existingIndex].selected = true;
+        cart[existingIndex].qty = selectedQty;
     }
     
     updateCartUI();
@@ -205,8 +215,8 @@ function updateCartUI() {
         div.className = 'cart-item';
         div.innerHTML = `
             <input type="checkbox" ${item.selected ? 'checked' : ''} onchange="toggleCartItem(${index}, this.checked)">
-            <span>${item.productname}</span>
-            <span>R$ ${parseFloat(item.price || 0).toFixed(2)}</span>
+            <span>${item.productname} (x${item.qty || 1})</span>
+            <span>R$ ${(parseFloat(item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
             <button onclick="removeFromCart(${index})" style="background:none;border:none;color:red;cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
         `;
         list.appendChild(div);
