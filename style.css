@@ -60,11 +60,59 @@ input:focus { border-color: var(--text-color); }
 /* Header Buttons */
 #hamburger-btn { background: none; border: none; color: var(--header-text); cursor: pointer; font-size: 1.5rem; display: none; }
 
-/* Mobile Menu Dropdown */
-#mobile-menu { background: var(--header-bg); position: fixed; top: 55px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; padding: 20px 0; z-index: 200; box-shadow: 0 10px 15px rgba(0,0,0,0.5); }
-#mobile-menu button { background: none; border: none; color: var(--header-text); padding: 15px; width: 100%; font-family: var(--font-body); text-transform: uppercase; cursor: pointer; letter-spacing: 1px; }
-#mobile-menu .mobile-lang-btn { border-bottom: 1px solid var(--accent); margin-bottom: 10px; }
+/* Mobile Menu Sidebar */
+#mobile-menu {
+    background: var(--header-bg);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px; /* Largura do menu lateral */
+    height: 100vh; /* Ocupa 100% da altura da tela */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha os botões à esquerda */
+    padding: 60px 20px 20px 20px;
+    z-index: 400; /* Garante que fique por cima do header */
+    box-shadow: 4px 0 15px rgba(0,0,0,0.5);
+    transform: translateX(0); /* Posição visível na tela */
+    transition: transform 0.3s ease-in-out; /* Efeito suave de deslizar */
+}
 
+#mobile-menu.hidden {
+    display: flex !important; /* Substitui o display: none do .hidden global para não quebrar a animação */
+    transform: translateX(-100%); /* Esconde o menu para fora da tela à esquerda */
+}
+
+#mobile-menu button {
+    background: none;
+    border: none;
+    color: var(--header-text);
+    padding: 15px 5px;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-body);
+    text-transform: uppercase;
+    cursor: pointer;
+    letter-spacing: 1px;
+    font-size: 1rem;
+    border-bottom: 1px solid var(--accent); /* Cria divisórias sutis entre os itens */
+}
+
+#mobile-menu .mobile-lang-btn { 
+    border-bottom: 1px solid var(--accent); 
+    margin-bottom: 10px; 
+}
+
+/* Botão de fechar (X) interno do menu */
+.close-menu-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem !important;
+    width: auto !important;
+    padding: 0 !important;
+    border: none !important;
+}
 /* Header */
 header {
     background: var(--header-bg); color: var(--header-text); display: flex;
