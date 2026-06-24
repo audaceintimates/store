@@ -14,7 +14,6 @@
         <div class="spinner"></div>
     </div>
 
-    <!-- AUTHENTICATION VIEWS -->
     <div id="auth-container">
         <div id="login-view" class="view active">
             <h1 data-i18n="login_title">Login</h1>
@@ -51,7 +50,6 @@
         </div>
     </div>
 
-    <!-- MAIN APP VIEW -->
     <div id="main-app" class="hidden">
         <header>
             <button id="hamburger-btn" onclick="toggleMobileMenu()"><i class="fa-solid fa-bars"></i></button>
@@ -68,6 +66,7 @@
                 <button class="cart-btn" onclick="toggleCartModal()"><i class="fa-solid fa-bag-shopping"></i> <span id="cart-count">0</span></button>
             </div>
         </header>
+        
         <div id="mobile-menu" class="hidden">
             <button class="close-menu-btn" onclick="toggleMobileMenu()">×</button>
             <button onclick="switchTab('home'); toggleMobileMenu()" data-i18n="nav_home">Loja</button>
@@ -87,7 +86,6 @@
             <button class="btn" onclick="openCheckout()" data-i18n="btn_buy">Comprar</button>
         </div>
 
-        <!-- TABS -->
         <main>
             <div id="tab-home" class="tab-content active">
                 <div class="products-grid" id="products-grid"></div>
@@ -102,9 +100,8 @@
             </div>
         </main>
 
-        <!-- PRODUCT PAGE MODAL -->
         <div id="product-page" class="full-modal hidden">
-            <button class="close-btn" onclick="closeProductPage()">&times;</button>
+            <button class="close-btn" onclick="closeProductPage()">×</button>
             <div class="product-page-content">
                 <div class="prod-img-col" id="prod-page-imgs"></div>
                 <div class="prod-info-col">
@@ -116,9 +113,8 @@
             </div>
         </div>
 
-        <!-- CHECKOUT MODAL -->
         <div id="checkout-modal" class="full-modal hidden">
-            <button class="close-btn" onclick="closeCheckout()">&times;</button>
+            <button class="close-btn" onclick="closeCheckout()">×</button>
             <div class="checkout-form-container">
                 <h2 data-i18n="checkout_title">Finalizar Pedido</h2>
                 <input type="text" id="chkName" placeholder="Nome Completo" readonly>
@@ -134,27 +130,28 @@
             </div>
         </div>
 
-        <!-- LIGHTBOX -->
         <div id="lightbox" class="full-modal hidden" onclick="closeLightbox()">
             <img id="lightbox-img" src="">
         </div>
 
         <footer>
             <div class="footer-info">
-        <p> <a href="https://maps.app.goo.gl/szkwLmya9eXm6UB68" target="_blank" style="text-decoration: none; color: inherit;">
-                <i class="fa-solid fa-map-pin"></i> Rua Engenho Laranjeiras, 1170, Ceará-Mirim/RN - Brasil
-            </a> </p>
-        <p>
-            <a href="https://wa.me/5584991401439" target="_blank" style="text-decoration: none; color: inherit;">
-                <i class="fa-brands fa-whatsapp"></i> +55 84 99140-1439
-            </a>
-        </p>
-        <p>
-            <a href="https://www.instagram.com/audaceintimates" target="_blank" style="text-decoration: none; color: inherit;">
-                <i class="fa-brands fa-instagram"></i> @audaceintimates
-            </a>
-        </p>
-    </div>
+                <p> 
+                    <a href="https://maps.app.goo.gl/szkwLmya9eXm6UB68" target="_blank" style="text-decoration: none; color: inherit;">
+                        <i class="fa-solid fa-map-pin"></i> Rua Engenho Laranjeiras, 1170, Ceará-Mirim/RN - Brasil
+                    </a> 
+                </p>
+                <p>
+                    <a href="https://wa.me/5584991401439" target="_blank" style="text-decoration: none; color: inherit;">
+                        <i class="fa-brands fa-whatsapp"></i> +55 84 99140-1439
+                    </a>
+                </p>
+                <p>
+                    <a href="https://www.instagram.com/audaceintimates" target="_blank" style="text-decoration: none; color: inherit;">
+                        <i class="fa-brands fa-instagram"></i> @audaceintimates
+                    </a>
+                </p>
+            </div>
             <div class="dev-credits">
                 <p data-i18n="dev_by">Desenvolvido por</p>
                 <img src="devlogo.png" alt="MicaDev" class="dev-logo">
@@ -163,7 +160,6 @@
         </footer>
     </div>
 
-    <!-- SCRIPTS -->
     <script>const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyAga2i_Y2Sl6s_NpTvyZuDjbQjGlZifUsA6ZxAhNvpzYrtTZWBwuF2MbRk29o9Sx6vuA/exec";</script>
     <script src="auth.js"></script>
     <script src="products.js"></script>
